@@ -253,7 +253,7 @@ function ranks(){
   $('rk2n').textContent='เกณฑ์: กองทุนที่ได้รับจัดสรรปี 70 แต่ยังไม่มีโครงการอนุมัติและยังไม่มียอดใช้จ่ายใดๆ มีทั้งหมด '+fm(off.length)+' กองทุน · เรียงให้กองทุนที่ใช้เงินปี 69 ต่ำสุดขึ้นก่อน (เท่ากันเรียงตามเพดานเงินมาก → น้อย) เพื่อใช้ติดตามกระตุ้น';
   rkTable(on.slice(0,10),'rk1');rkTable(off.slice(0,10),'rk2');
 }
-const COLS=[['p','จังหวัด'],['a','อำเภอ'],['c','รหัสกองทุน'],['n','กองทุน'],['tot70','รวมรายรับ ปีงบฯ 70 (บาท)',1],['exp70','รายจ่าย ปีงบฯ 70 (บาท)',1],['bal70','เงินคงเหลือ ปีงบฯ 70 (บาท)',1],['p70','การใช้เงินปี 70 %',1],['lt','ไฟ (ปี 70)']];
+const COLS=[['p','จังหวัด'],['a','อำเภอ'],['c','รหัสกองทุน'],['n','กองทุน'],['tot70','รวมรายรับ (บาท)',1],['exp70','รายจ่าย (บาท)',1],['bal70','เงินคงเหลือ (บาท)',1],['p70','การใช้เงินปี 70 %',1],['lt','ไฟ (ปี 70)']];
 const m70=f=>{const r=f.m&&f.m[pidx()];return r&&r[0]!=null?r:null};
 const val=(f,k)=>k=='tot70'?(m70(f)?m70(f)[0]:null):k=='exp70'?(m70(f)?m70(f)[1]:null):k=='bal70'?(m70(f)?m70(f)[0]-m70(f)[1]:null):k=='p69'?p69(f):k=='p70'?p70(f,pidx()):k=='np'?(PJ[f.c]||[]).length:k=='lt'?p70(f,pidx()):f[k];
 function rows(){
@@ -262,7 +262,7 @@ function rows(){
   const k=S.sort;if(k=='def'){const pv=f=>{const v=p69(f);return v==null?-1:v};r.sort((x,y)=>x.p.localeCompare(y.p,'th')||x.a.localeCompare(y.a,'th')||pv(y)-pv(x));return r}r.sort((x,y)=>{const a=val(x,k),b=val(y,k);if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return(a>b?1:a<b?-1:0)*S.dir});
   return r;
 }
-function frow(f){const q=m70(f),v=p70(f,pidx());return{'จังหวัด':f.p,'อำเภอ':f.a,'รหัสกองทุน':f.c,'กองทุน':f.n,'การใช้เงินปี 69 %':p69(f)==null?null:+p69(f).toFixed(2),'สถานะการจัดสรร 70':f.s70,'เพดานเงินที่จัดสรร 70 (บาท)':f.cap,'รวมรายรับ ปีงบฯ 70 (บาท)':q?q[0]:null,'รายจ่าย ปีงบฯ 70 (บาท)':q?q[1]:null,'เงินคงเหลือ ปีงบฯ 70 (บาท)':q?q[0]-q[1]:null,['การใช้เงินปี 70 % ('+plabel()+')']:v==null?null:+v.toFixed(2),'ไฟ (ปี 70)':LT[LF(v)],'จำนวนโครงการที่อนุมัติ':(PJ[f.c]||[]).length}}
+function frow(f){const q=m70(f),v=p70(f,pidx());return{'จังหวัด':f.p,'อำเภอ':f.a,'รหัสกองทุน':f.c,'กองทุน':f.n,'การใช้เงินปี 69 %':p69(f)==null?null:+p69(f).toFixed(2),'สถานะการจัดสรร 70':f.s70,'เพดานเงินที่จัดสรร 70 (บาท)':f.cap,'รวมรายรับ (บาท)':q?q[0]:null,'รายจ่าย (บาท)':q?q[1]:null,'เงินคงเหลือ (บาท)':q?q[0]-q[1]:null,['การใช้เงินปี 70 % ('+plabel()+')']:v==null?null:+v.toFixed(2),'ไฟ (ปี 70)':LT[LF(v)],'จำนวนโครงการที่อนุมัติ':(PJ[f.c]||[]).length}}
 function table(){
   const r=rows(),per=20,pages=Math.max(1,Math.ceil(r.length/per));S.page=Math.min(S.page,pages-1);
   let h='<tr>'+COLS.map(c=>`<th class="${c[2]?'n':''}" data-k="${c[0]}">${c[1]}${S.sort==c[0]?(S.dir>0?' ▲':' ▼'):''}</th>`).join('')+'<th>รายละเอียดเพิ่มเติม</th></tr>';
