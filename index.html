@@ -127,7 +127,7 @@ const MY=[2569,2569,2569,2570,2570,2570,2570,2570,2570,2570,2570,2570];
 const T69=83,T70=88,TH=70;
 /* ค่าคงที่ถาวร: KPI ปีงบฯ 69 = 572/685 (ร้อยละ 83.50) ห้ามเปลี่ยนจนกว่าจะมีคำสั่ง */
 const KPI69=Object.freeze({p:572,t:685,r:572/685*100});
-const ASOF=new Date().toLocaleString('th-TH',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})+' น.';
+const ASOF=fmtAsOf(D.asof||new Date());
 const S={sp:'',sa:'',amp:'',v:'month',m:0,q:0,base:'all',prov:'',light:'',q_:'',sort:'def',dir:1,page:0};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -253,7 +253,7 @@ function ranks(){
   $('rk2n').textContent='เกณฑ์: กองทุนที่ได้รับจัดสรรปี 70 แต่ยังไม่มีโครงการอนุมัติและยังไม่มียอดใช้จ่ายใดๆ มีทั้งหมด '+fm(off.length)+' กองทุน · เรียงให้กองทุนที่ใช้เงินปี 69 ต่ำสุดขึ้นก่อน (เท่ากันเรียงตามเพดานเงินมาก → น้อย) เพื่อใช้ติดตามกระตุ้น';
   rkTable(on.slice(0,10),'rk1');rkTable(off.slice(0,10),'rk2');
 }
-const COLS=[['p','จังหวัด'],['a','อำเภอ'],['c','รหัสกองทุน'],['n','กองทุน'],['tot70','รวมรายรับ 70 (บาท)',1],['exp70','รายจ่าย 70 (บาท)',1],['bal70','เงินคงเหลือ 70 (บาท)',1],['p70','การใช้เงินปี 70 %',1],['lt','ไฟ (ปี 70)']];
+const COLS=[['p','จังหวัด'],['a','อำเภอ'],['c','รหัสกองทุน'],['n','กองทุน'],['tot70','รวมรายรับ ปีงบฯ 70 (บาท)',1],['exp70','รายจ่าย ปีงบฯ 70 (บาท)',1],['bal70','เงินคงเหลือ ปีงบฯ 70 (บาท)',1],['p70','การใช้เงินปี 70 %',1],['lt','ไฟ (ปี 70)']];
 const m70=f=>{const r=f.m&&f.m[pidx()];return r&&r[0]!=null?r:null};
 const val=(f,k)=>k=='tot70'?(m70(f)?m70(f)[0]:null):k=='exp70'?(m70(f)?m70(f)[1]:null):k=='bal70'?(m70(f)?m70(f)[0]-m70(f)[1]:null):k=='p69'?p69(f):k=='p70'?p70(f,pidx()):k=='np'?(PJ[f.c]||[]).length:k=='lt'?p70(f,pidx()):f[k];
 function rows(){
@@ -262,7 +262,7 @@ function rows(){
   const k=S.sort;if(k=='def'){const pv=f=>{const v=p69(f);return v==null?-1:v};r.sort((x,y)=>x.p.localeCompare(y.p,'th')||x.a.localeCompare(y.a,'th')||pv(y)-pv(x));return r}r.sort((x,y)=>{const a=val(x,k),b=val(y,k);if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return(a>b?1:a<b?-1:0)*S.dir});
   return r;
 }
-function frow(f){const q=m70(f),v=p70(f,pidx());return{'จังหวัด':f.p,'อำเภอ':f.a,'รหัสกองทุน':f.c,'กองทุน':f.n,'การใช้เงินปี 69 %':p69(f)==null?null:+p69(f).toFixed(2),'สถานะการจัดสรร 70':f.s70,'เพดานเงินที่จัดสรร 70 (บาท)':f.cap,'รวมรายรับ 70 (บาท)':q?q[0]:null,'รายจ่าย 70 (บาท)':q?q[1]:null,'เงินคงเหลือ 70 (บาท)':q?q[0]-q[1]:null,['การใช้เงินปี 70 % ('+plabel()+')']:v==null?null:+v.toFixed(2),'ไฟ (ปี 70)':LT[LF(v)],'จำนวนโครงการที่อนุมัติ':(PJ[f.c]||[]).length}}
+function frow(f){const q=m70(f),v=p70(f,pidx());return{'จังหวัด':f.p,'อำเภอ':f.a,'รหัสกองทุน':f.c,'กองทุน':f.n,'การใช้เงินปี 69 %':p69(f)==null?null:+p69(f).toFixed(2),'สถานะการจัดสรร 70':f.s70,'เพดานเงินที่จัดสรร 70 (บาท)':f.cap,'รวมรายรับ ปีงบฯ 70 (บาท)':q?q[0]:null,'รายจ่าย ปีงบฯ 70 (บาท)':q?q[1]:null,'เงินคงเหลือ ปีงบฯ 70 (บาท)':q?q[0]-q[1]:null,['การใช้เงินปี 70 % ('+plabel()+')']:v==null?null:+v.toFixed(2),'ไฟ (ปี 70)':LT[LF(v)],'จำนวนโครงการที่อนุมัติ':(PJ[f.c]||[]).length}}
 function table(){
   const r=rows(),per=20,pages=Math.max(1,Math.ceil(r.length/per));S.page=Math.min(S.page,pages-1);
   let h='<tr>'+COLS.map(c=>`<th class="${c[2]?'n':''}" data-k="${c[0]}">${c[1]}${S.sort==c[0]?(S.dir>0?' ▲':' ▼'):''}</th>`).join('')+'<th>รายละเอียดเพิ่มเติม</th></tr>';
@@ -512,7 +512,27 @@ function buildD(texts){
 async function loadAll(){
   const texts=await Promise.all(SRC.map(async(u,i)=>{let r;try{r=await fetch(u+'&_='+Date.now(),{cache:'no-store'})}catch(e){throw new Error('เปิดลิงก์ที่ '+(i+1)+' ไม่ได้ (เครือข่ายหรือสิทธิ์การเข้าถึง)')}
     if(!r.ok)throw new Error('ลิงก์ที่ '+(i+1)+' ตอบกลับสถานะ '+r.status);return r.text()}));
-  return buildD(texts)}
+  const D=buildD(texts);D.asof=await getAsOf(texts);return D}
+
+/* ===== วันที่อัปเดตข้อมูล =====
+   ตั้ง META_URL เป็นลิงก์ Web App ของ Google Apps Script (ดูวิธีทำในคำอธิบายที่ส่งให้)
+   ระบบจะแสดงเวลาที่ Google Sheet ถูกแก้ไขล่าสุดจริง
+   ถ้าเว้นว่างไว้หรือเรียกไม่สำเร็จ จะสำรองด้วยการตรวจว่าข้อมูลเปลี่ยนไปจากครั้งก่อน
+   (บันทึกในเบราว์เซอร์ของผู้เปิด จึงอาจไม่ตรงกับเวลาแก้ไขจริงของ Sheet) */
+const META_URL='https://script.google.com/macros/s/AKfycbxVN2PhwXE22tRbFJ6FUj1sxyRQa053uKKwML9BhI_rD2iUmKte91bZiidSKqbEhTOx7A/exec';
+const fmtAsOf=d=>new Date(d).toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})+' น.';
+async function getAsOf(texts){
+  if(META_URL){
+    try{const r=await fetch(META_URL+(META_URL.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});
+      if(r.ok){const j=await r.json(),d=new Date(j.modified);if(!isNaN(d))return d}}catch(e){}
+  }
+  let h=0;const s=texts.join('\u0001');for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;
+  const key='dash_obt5_dataver';
+  try{const o=JSON.parse(localStorage.getItem(key)||'null');
+    if(o&&o.h===h&&o.t)return new Date(o.t);
+    const t=Date.now();localStorage.setItem(key,JSON.stringify({h,t}));return new Date(t)}
+  catch(e){return new Date()}
+}
 async function getDl(){try{if(typeof claude!=='undefined')return await claude.use('downloads')}catch(e){}
   return{save:async({filename,data})=>{const b=new Blob([data],{type:'application/octet-stream'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}}}
 
