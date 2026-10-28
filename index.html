@@ -519,7 +519,7 @@ async function loadAll(){
    ระบบจะแสดงเวลาที่ Google Sheet ถูกแก้ไขล่าสุดจริง
    ถ้าเว้นว่างไว้หรือเรียกไม่สำเร็จ จะสำรองด้วยการตรวจว่าข้อมูลเปลี่ยนไปจากครั้งก่อน
    (บันทึกในเบราว์เซอร์ของผู้เปิด จึงอาจไม่ตรงกับเวลาแก้ไขจริงของ Sheet) */
-const META_URL='https://script.google.com/macros/s/AKfycbxVN2PhwXE22tRbFJ6FUj1sxyRQa053uKKwML9BhI_rD2iUmKte91bZiidSKqbEhTOx7A/exec';
+const META_URL='';
 const fmtAsOf=d=>new Date(d).toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})+' น.';
 async function getAsOf(texts){
   if(META_URL){
