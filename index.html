@@ -146,7 +146,7 @@ const inBase=(f,y)=>{const s=y==69?f.s69:f.s70;return S.base=='all'?s!='ยั�
 function calc(y,i,flt){let t=0,p=0;F.forEach(f=>{if(flt&&!flt(f)||!inBase(f,y))return;const v=y==69?p69(f):p70(f,i);if(v==null){if(y==69)t++;return}t++;if(v>=TH)p++});return{t,p,r:t?p/t*100:null}}
 const hasData=i=>F.some(f=>p70(f,i)!=null);
 let latest=-1;for(let i=11;i>=0;i--)if(hasData(i)){latest=i;break}
-S.m=latest<0?0:latest;S.q=latest<0?0:Math.floor(latest/3);
+S.m=-1;S.q=-1; /* ค่าเริ่มต้น = ทุกเดือน / ทุกไตรมาส (ดูทั้งหมด) */
 /* S.m = -1 → "ทุกเดือน", S.q = -1 → "ทุกไตรมาส" (ตารางแสดงทุกช่วงเป็นคอลัมน์ ส่วนการ์ด/ไฟ/ตัวกรองใช้ช่วงล่าสุดที่มีข้อมูล) */
 const isAll=()=>S.v=='month'?S.m<0:S.q<0;
 const lastQ=()=>{for(let q=3;q>=0;q--)if(hasData(q*3+2))return q;return -1};
