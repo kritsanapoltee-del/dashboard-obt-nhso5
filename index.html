@@ -152,7 +152,7 @@ const isAll=()=>S.v=='month'?S.m<0:S.q<0;
 const lastQ=()=>{for(let q=3;q>=0;q--)if(hasData(q*3+2))return q;return -1};
 const pidx=()=>S.v=='month'?(S.m<0?Math.max(latest,0):S.m):(S.q<0?(lastQ()<0?2:lastQ()*3+2):S.q*3+2);
 const pl1=i=>S.v=='month'?MN[i]+' '+String(MY[i]).slice(2):'ไตรมาส '+(Math.floor(i/3)+1)+' ('+MN[Math.floor(i/3)*3]+'–'+MN[Math.floor(i/3)*3+2]+')';
-const plabel=()=>isAll()?(S.v=='month'?'ทุกเดือน':'ทุกไตรมาส')+' · ล่าสุด '+pl1(pidx()):pl1(pidx());
+const plabel=()=>isAll()?(S.v=='month'?'ทุกเดือน':'ทุกไตรมาส')+' · สะสมถึง '+pl1(pidx()):pl1(pidx());
 const periods=()=>S.v=='month'?MN.map((m,k)=>({l:m+' '+String(MY[k]).slice(2),i:k})):[0,1,2,3].map(q=>({l:'ไตรมาส '+(q+1),i:q*3+2}));
 const pcell=c=>`<td class="n" title="${c.t&&c.r!=null?c.p+'/'+c.t+' แห่ง':'รอข้อมูล'}"><span class="dot ${L(c.r,T70)}" style="width:9px;height:9px;margin-right:4px"></span>${c.r==null?'—':f1(c.r)}</td>`;
 const fcell=v=>`<td class="n"><span class="dot ${LF(v)}" style="width:9px;height:9px;margin-right:4px"></span>${v==null?'—':f1(v)}</td>`;
@@ -234,14 +234,14 @@ function strip(){
 }
 const PROVS=[...new Set(F.map(f=>f.p))].sort();
 function prov(){
-  const i=pidx(),ma=isAll(),P=periods(),gs=[...new Set(F.filter(inScope).map(f=>f.p))].sort((x,y)=>x.localeCompare(y,'th'));
+  const i=pidx(),ma=false,P=periods(),gs=[...new Set(F.filter(inScope).map(f=>f.p))].sort((x,y)=>x.localeCompare(y,'th'));
   let h='<tr><th>จังหวัด</th><th class="n">กองทุน</th><th class="n">ปี 69: จ่ายได้ ≥70% (แห่ง)</th><th class="n">ร้อยละ</th><th>ไฟ ปี 69</th>'+(ma?P.map(p=>'<th class="n">'+esc(p.l)+'</th>').join(''):'<th class="n">ปี 70 ('+esc(plabel())+')</th><th>ไฟ ปี 70</th>')+'</tr>';
   gs.forEach(g=>{const fl=f=>inScope(f)&&f.p==g,a=calc(69,0,fl),la=L(a.r,T69);
     h+=`<tr><td>${esc(g)}</td><td class="n">${F.filter(fl).length}</td><td class="n">${a.p}/${a.t}</td><td class="n">${f1(a.r)}</td><td><span class="tag ${la}">${LT[la]}</span></td>`+(ma?P.map(p=>pcell(calc(70,p.i,fl))).join(''):(()=>{const b=calc(70,i,fl),lb=L(b.r,T70);return `<td class="n">${b.r==null?'—':f1(b.r)}</td><td><span class="tag ${lb}">${LT[lb]}</span></td>`})())+'</tr>'});
   $('pv').innerHTML=h;
 }
 function dist(){
-  const i=pidx(),ma=isAll(),P=periods(),gs=[...new Set(F.filter(inScope).map(f=>f.p+'|'+f.a))].sort((x,y)=>x.localeCompare(y,'th'));
+  const i=pidx(),ma=false,P=periods(),gs=[...new Set(F.filter(inScope).map(f=>f.p+'|'+f.a))].sort((x,y)=>x.localeCompare(y,'th'));
   let h='<tr><th>อำเภอ</th><th class="n">กองทุน</th><th class="n">ปี 69: จ่ายได้ ≥70% (แห่ง)</th><th class="n">ร้อยละ</th><th>ไฟ ปี 69</th>'+(ma?P.map(p=>'<th class="n">'+esc(p.l)+'</th>').join(''):'<th class="n">ปี 70 ('+esc(plabel())+')</th><th>ไฟ ปี 70</th>')+'</tr>';
   gs.forEach(g=>{const [p,a]=g.split('|'),fl=f=>inScope(f)&&f.p==p&&f.a==a,x=calc(69,0,fl),la=L(x.r,T69);
     h+=`<tr><td>${esc(a)}</td><td class="n">${F.filter(fl).length}</td><td class="n">${x.p}/${x.t}</td><td class="n">${f1(x.r)}</td><td><span class="tag ${la}">${LT[la]}</span></td>`+(ma?P.map(q=>pcell(calc(70,q.i,fl))).join(''):(()=>{const b=calc(70,i,fl),lb=L(b.r,T70);return `<td class="n">${b.r==null?'—':f1(b.r)}</td><td><span class="tag ${lb}">${LT[lb]}</span></td>`})())+'</tr>'});
@@ -250,7 +250,7 @@ function dist(){
 function act(f){const i=pidx(),ps=PJ[f.c]||[],sp=ps.reduce((s,p)=>s+p[7],0);const inc=(f.cy||0)+(f.cap||0)+(f.lao&&f.lao[1]||0);return{f,v:p70(f,i),n:ps.length,sp,sc:inc?sp/inc*100:0}}
 function rkTable(rows,el,rank){
   $(el).innerHTML='<tr><th>#</th><th>กองทุน</th><th>อำเภอ</th><th>จังหวัด</th><th class="n">ใช้เงินปี 69 %</th><th class="n">เพดานเงิน 70 (บาท)</th><th class="n">โครงการอนุมัติ</th><th class="n">ใช้ไปในโครงการ (บาท)</th><th class="n">ใช้ไป % ของรายรับ (ประมาณ)</th><th class="n">ใช้เงินปี 70 %</th><th>รายละเอียด</th></tr>'+
-  rows.map((r,j)=>`<tr><td>${j+1}</td><td>${esc(r.f.n.replace('กองทุนสุขภาพตำบล',''))} <span class="sub">${esc(r.f.c)}</span></td><td>${esc(r.f.a)}</td><td>${esc(r.f.p)}</td><td class="n">${f1(p69(r.f))}</td><td class="n">${fm(r.f.cap)}</td><td class="n">${r.n||'—'}</td><td class="n">${fm(r.sp)}</td><td class="n">${f1(r.sc)}</td><td class="n">${f1(r.v)}</td><td><button class="btn" data-c="${r.f.c}">รายละเอียดเพิ่มเติม</button></td></tr>`).join('')||'<tr><td colspan="11">ไม่มีข้อมูล</td></tr>';
+  rows.map((r,j)=>`<tr><td>${j+1}</td><td>${esc(r.f.n.replace('กองทุนสุขภาพตำบล',''))} <span class="sub">${esc(r.f.c)}</span></td><td>${esc(r.f.a)}</td><td>${esc(r.f.p)}</td><td class="n">${f1(p69(r.f))}</td><td class="n">${fm(r.f.cap)}</td><td class="n">${r.n||'—'}</td><td class="n">${fm(r.sp)}</td><td class="n">${f1(r.sc)}</td><td class="n">${f1(r.v)}</td><td><button class="btn" data-c="${esc(r.f.c)}">รายละเอียดเพิ่มเติม</button></td></tr>`).join('')||'<tr><td colspan="11">ไม่มีข้อมูล</td></tr>';
   $(el).querySelectorAll('button[data-c]').forEach(e=>e.onclick=()=>drill(e.dataset.c));
 }
 function ranks(){
@@ -264,7 +264,7 @@ function ranks(){
 }
 const COLS0=[['p','จังหวัด'],['a','อำเภอ'],['c','รหัสกองทุน'],['n','กองทุน']];
 const COLS1=[['tot70','รวมรายรับ (บาท)',1],['exp70','รายจ่าย (บาท)',1],['bal70','เงินคงเหลือ (บาท)',1],['p70','การใช้เงินปี 70 %',1],['lt','ไฟ (ปี 70)']];
-const getCols=()=>isAll()?[...COLS0,...periods().map(p=>['pp'+p.i,p.l+' (%)',1]),['lt','ไฟ (ล่าสุด: '+pl1(pidx())+')']]:[...COLS0,...COLS1];
+const getCols=()=>[...COLS0,...COLS1];
 const m70=f=>{const r=f.m&&f.m[pidx()];return r&&r[0]!=null?r:null};
 const val=(f,k)=>/^pp\d+$/.test(k)?p70(f,+k.slice(2)):k=='tot70'?(m70(f)?m70(f)[0]:null):k=='exp70'?(m70(f)?m70(f)[1]:null):k=='bal70'?(m70(f)?m70(f)[0]-m70(f)[1]:null):k=='p69'?p69(f):k=='p70'?p70(f,pidx()):k=='np'?(PJ[f.c]||[]).length:k=='lt'?p70(f,pidx()):f[k];
 function rows(){
@@ -273,7 +273,7 @@ function rows(){
   const k=S.sort;if(k=='def'){const pv=f=>{const v=p69(f);return v==null?-1:v};r.sort((x,y)=>x.p.localeCompare(y.p,'th')||x.a.localeCompare(y.a,'th')||pv(y)-pv(x));return r}r.sort((x,y)=>{const a=val(x,k),b=val(y,k);if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return(a>b?1:a<b?-1:0)*S.dir});
   return r;
 }
-function frow(f){const q=m70(f),v=p70(f,pidx()),ma=isAll(),sfx=ma?' (ล่าสุด: '+pl1(pidx())+')':'';
+function frow(f){const q=m70(f),v=p70(f,pidx()),ma=false,sfx=ma?' (ล่าสุด: '+pl1(pidx())+')':'';
   const o={'จังหวัด':f.p,'อำเภอ':f.a,'รหัสกองทุน':f.c,'กองทุน':f.n,'การใช้เงินปี 69 %':p69(f)==null?null:+p69(f).toFixed(2),'สถานะการจัดสรร 70':f.s70,'การเข้าร่วม LTC':f.ltc,'เพดานเงินที่จัดสรร 70 (บาท)':f.cap,['รวมรายรับ (บาท)'+sfx]:q?q[0]:null,['รายจ่าย (บาท)'+sfx]:q?q[1]:null,['เงินคงเหลือ (บาท)'+sfx]:q?q[0]-q[1]:null};
   if(ma)periods().forEach(p=>{const x=p70(f,p.i);o['การใช้เงินปี 70 % ('+p.l+')']=x==null?null:+x.toFixed(2)});
   else o['การใช้เงินปี 70 % ('+plabel()+')']=v==null?null:+v.toFixed(2);
@@ -281,11 +281,11 @@ function frow(f){const q=m70(f),v=p70(f,pidx()),ma=isAll(),sfx=ma?' (ล่า�
   o['จำนวนโครงการที่อนุมัติ']=(PJ[f.c]||[]).length;
   return o}
 function table(){
-  const ma=isAll(),C=getCols();if(S.sort!='def'&&!C.some(c=>c[0]==S.sort)){S.sort='def';S.dir=1}
+  const ma=false,C=getCols();if(S.sort!='def'&&!C.some(c=>c[0]==S.sort)){S.sort='def';S.dir=1}
   const r=rows(),per=20,pages=Math.max(1,Math.ceil(r.length/per));S.page=Math.min(S.page,pages-1);
   let h='<tr>'+C.map(c=>`<th class="${c[2]?'n':''}" data-k="${c[0]}">${c[1]}${S.sort==c[0]?(S.dir>0?' ▲':' ▼'):''}</th>`).join('')+'<th>รายละเอียดเพิ่มเติม</th></tr>';
   r.slice(S.page*per,S.page*per+per).forEach(f=>{const v=p70(f,pidx()),l=LF(v),q=m70(f);
-    h+=`<tr><td>${esc(f.p)}</td><td>${esc(f.a)}</td><td>${esc(f.c)}</td><td>${esc(f.n.replace('กองทุนสุขภาพตำบล',''))}</td>`+(ma?periods().map(p=>fcell(p70(f,p.i))).join('')+`<td><span class="tag ${l}">${LT[l]}</span></td>`:`<td class="n">${fm(q&&q[0])}</td><td class="n">${fm(q&&q[1])}</td><td class="n">${fm(q&&q[0]-q[1])}</td><td class="n">${f1(v)}</td><td><span class="tag ${l}">${LT[l]}</span></td>`)+`<td><button class="btn" data-c="${f.c}">รายละเอียดเพิ่มเติม</button></td></tr>`});
+    h+=`<tr><td>${esc(f.p)}</td><td>${esc(f.a)}</td><td>${esc(f.c)}</td><td>${esc(f.n.replace('กองทุนสุขภาพตำบล',''))}</td>`+(ma?periods().map(p=>fcell(p70(f,p.i))).join('')+`<td><span class="tag ${l}">${LT[l]}</span></td>`:`<td class="n">${fm(q&&q[0])}</td><td class="n">${fm(q&&q[1])}</td><td class="n">${fm(q&&q[0]-q[1])}</td><td class="n">${f1(v)}</td><td><span class="tag ${l}">${LT[l]}</span></td>`)+`<td><button class="btn" data-c="${esc(f.c)}">รายละเอียดเพิ่มเติม</button></td></tr>`});
   $('tb').innerHTML=h;$('cnt').textContent='แสดง '+fm(r.length)+' จาก '+fm(F.length)+' กองทุน';$('pgi').textContent='หน้า '+(S.page+1)+' / '+pages;
   $('tb').querySelectorAll('th[data-k]').forEach(e=>e.onclick=()=>{const k=e.dataset.k;S.dir=S.sort==k?-S.dir:1;S.sort=k;table()});
   $('tb').querySelectorAll('button[data-c]').forEach(e=>e.onclick=()=>drill(e.dataset.c));
@@ -347,7 +347,7 @@ $('ex').onclick=async()=>{
   const sc0=isRegion(),a=sc0?KPI69:calc(69,0,inScope),i=pidx(),b=calc(70,i,inScope);
   const sm=[['อัปเดตข้อมูล ณ วันที่',ASOF],['พื้นที่',sc0?'ทั้งเขต':scopeLabel()],[],['ตัวชี้วัด','จำนวนกองทุนที่จ่ายเงินได้ ≥70%','จำนวนกองทุนในฐาน','ร้อยละ','สถานะไฟจราจร'],
    ['ปีงบฯ 69 (สรุปทั้งปี)',a.p,a.t,a.r==null?'':+a.r.toFixed(2),LT[L(a.r,T69)]]];
-  if(isAll())periods().forEach(p=>{const c=calc(70,p.i,inScope);sm.push(['ปีงบฯ 70 ('+p.l+')',c.p,c.t,c.r==null?'':+c.r.toFixed(2),LT[L(c.r,T70)]])});
+  if(false)periods().forEach(p=>{const c=calc(70,p.i,inScope);sm.push(['ปีงบฯ 70 ('+p.l+')',c.p,c.t,c.r==null?'':+c.r.toFixed(2),LT[L(c.r,T70)]])});
   else sm.push(['ปีงบฯ 70 ('+plabel()+')',b.p,b.t,b.r==null?'':+b.r.toFixed(2),LT[L(b.r,T70)]]);
   PROVS.forEach(p=>{const c=calc(69,0,f=>f.p==p);sm.push(['  ปี 69 · '+p,c.p,c.t,c.r==null?'':+c.r.toFixed(2),LT[L(c.r,T69)]])});
   const fr=rows().map(frow);
