@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--bg:#f3f6fb;--card:#fff;--tx:#14213d;--mu:#5b6b85;--bd:#dbe3ef;--pri:#1565c0;--ok:#1e9e55;--warn:#e8a200;--bad:#d93a3a;--gr:#9aa7bb;--okb:#e3f6ea;--warnb:#fff4d6;--badb:#fde5e5;--grb:#eef1f6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#17233a;--tx:#e8eefb;--mu:#9db0d0;--bd:#2a3a58;--pri:#5aa2ff;--okb:#123a26;--warnb:#3d3410;--badb:#421a1a;--grb:#222f47;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0e1626;--card:#17233a;--tx:#e8eefb;--mu:#9db0d0;--bd:#2a3a58;--pri:#5aa2ff;--okb:#123a26;--warnb:#3d3410;--badb:#421a1a;--grb:#222f47;color-scheme:dark}
+:root{--bg:#f3f6fb;--card:#fff;--tx:#14213d;--mu:#5b6b85;--bd:#dbe3ef;--pri:#1565c0;--ok:#1e9e55;--warn:#e8a200;--bad:#d93a3a;--gr:#9aa7bb;--okb:#e3f6ea;--warnb:#fff4d6;--badb:#fde5e5;--grb:#eef1f6;--pu:#7b3fb8;--pub:#f3eafb;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#17233a;--tx:#e8eefb;--mu:#9db0d0;--bd:#2a3a58;--pri:#5aa2ff;--okb:#123a26;--warnb:#3d3410;--badb:#421a1a;--grb:#222f47;--pu:#c9a3f5;--pub:#2e1f47;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1626;--card:#17233a;--tx:#e8eefb;--mu:#9db0d0;--bd:#2a3a58;--pri:#5aa2ff;--okb:#123a26;--warnb:#3d3410;--badb:#421a1a;--grb:#222f47;--pu:#c9a3f5;--pub:#2e1f47;color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:'Sarabun',system-ui,sans-serif;font-size:15px;line-height:1.5}
 .wrap{max-width:1280px;margin:0 auto;padding:16px}
@@ -48,6 +48,7 @@ th{position:sticky;top:0;background:var(--grb);cursor:pointer;user-select:none}t
 [data-pg]{display:none}[data-pg].on{display:block}
 #nav{margin:4px 0 6px;flex-wrap:wrap}#nav button{padding:9px 16px;font-weight:600}
 @media print{[data-pg]{display:block}#nav{display:none}.bar,.pg,.btn{display:none}}
+.card.wide{grid-column:span 2}@media(max-width:640px){.card.wide{grid-column:span 1}}.sec+.sec{border-top:1px dashed var(--bd);margin-top:14px;padding-top:14px}.pbox{background:var(--pub);border:1px solid var(--pu);border-radius:12px;padding:10px 14px;margin-top:12px}.pbox h4{margin:0 0 8px;font-size:13.5px;color:var(--pu)}.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}.pgrid .big{font-size:28px;color:var(--pu)}.pbox .meter{background:rgba(123,63,184,.18)}
 .tn{display:flex;gap:8px;flex-wrap:wrap}.tb2{width:100%}.nb td.n b{font-weight:700}
 [data-pg="4"] table td.b{min-width:120px}
 </style>
@@ -141,7 +142,7 @@ const inScope=f=>(!S.sp||f.p==S.sp)&&(!S.sa||f.a==S.sa)&&(!S.gq||norm(f.n+' '+f.
 const isRegion=()=>!S.sp&&!S.sa&&!S.gq;
 const scopeLabel=()=>(S.sp||'')+(S.sa?' อ.'+S.sa:'')+(S.gq?(S.sp||S.sa?' · ':'')+'ค้นหา "'+S.gqr+'"':'');
 const p69=f=>f.x?f.x.pct:null;
-const p70=(f,i)=>{const r=f.m&&f.m[i];return r&&r[0]?r[1]/r[0]*100:null};
+const p70=(f,i)=>{const r=i<0?f.t:(f.m&&f.m[i]);return r&&r[0]?r[1]/r[0]*100:null};
 const inBase=(f,y)=>{const s=y==69?f.s69:f.s70;return S.base=='all'?s!='ยังไม่เข้าร่วม':s=='ได้รับจัดสรร'};
 function calc(y,i,flt){let t=0,p=0;F.forEach(f=>{if(flt&&!flt(f)||!inBase(f,y))return;const v=y==69?p69(f):p70(f,i);if(v==null){if(y==69)t++;return}t++;if(v>=TH)p++});return{t,p,r:t?p/t*100:null}}
 const hasData=i=>F.some(f=>p70(f,i)!=null);
@@ -151,8 +152,9 @@ S.m=-1;S.q=-1; /* ค่าเริ่มต้น = ทุกเดือน /
 const isAll=()=>S.v=='month'?S.m<0:S.q<0;
 const lastQ=()=>{for(let q=3;q>=0;q--)if(hasData(q*3+2))return q;return -1};
 const pidx=()=>S.v=='month'?(S.m<0?Math.max(latest,0):S.m):(S.q<0?(lastQ()<0?2:lastQ()*3+2):S.q*3+2);
+const ix=()=>isAll()?-1:pidx(); /* -1 = ใช้คอลัมน์ รวมทั้งหมด (สีม่วง) ของชีต */
 const pl1=i=>S.v=='month'?MN[i]+' '+String(MY[i]).slice(2):'ไตรมาส '+(Math.floor(i/3)+1)+' ('+MN[Math.floor(i/3)*3]+'–'+MN[Math.floor(i/3)*3+2]+')';
-const plabel=()=>isAll()?(S.v=='month'?'ทุกเดือน':'ทุกไตรมาส')+' · สะสมถึง '+pl1(pidx()):pl1(pidx());
+const plabel=()=>isAll()?(S.v=='month'?'ทุกเดือน':'ทุกไตรมาส')+' · รวมทั้งหมด':pl1(pidx());
 const periods=()=>S.v=='month'?MN.map((m,k)=>({l:m+' '+String(MY[k]).slice(2),i:k})):[0,1,2,3].map(q=>({l:'ไตรมาส '+(q+1),i:q*3+2}));
 const pcell=c=>`<td class="n" title="${c.t&&c.r!=null?c.p+'/'+c.t+' แห่ง':'รอข้อมูล'}"><span class="dot ${L(c.r,T70)}" style="width:9px;height:9px;margin-right:4px"></span>${c.r==null?'—':f1(c.r)}</td>`;
 const fcell=v=>`<td class="n"><span class="dot ${LF(v)}" style="width:9px;height:9px;margin-right:4px"></span>${v==null?'—':f1(v)}</td>`;
@@ -188,24 +190,29 @@ function barTable(ps,ix,lab){
   <div class="scroll" style="border:0"><table><tr><th>${lab}</th><th style="width:40%">สัดส่วนเงินที่ใช้ไป</th><th class="n">ใช้ไป (บาท)</th><th class="n">ร้อยละ</th><th class="n">โครงการ</th></tr>`+g.map(([k,v])=>`<tr><td style="white-space:normal"><b>${esc(k)}</b></td><td><div class="meter" style="height:14px;margin:0"><i style="width:${v.s/mx*100}%;background:var(--pri)"></i></div></td><td class="n">${fm(v.s)}</td><td class="n"><b>${f1(ts?v.s/ts*100:0)}%</b></td><td class="n">${v.n}</td></tr>`).join('')+`</table></div>`;
 }
 function cards(){
-  const inS=inScope,FS=F.filter(inS),sc=isRegion(),scl=scopeLabel(),a=sc?KPI69:calc(69,0,inS),i=pidx(),b=calc(70,i,inS);
-  const pv=S.v=='month'?i-1:i-3,bp=pv>=0?calc(70,pv,inS):{r:null};
+  const inS=inScope,FS=F.filter(inS),sc=isRegion(),scl=scopeLabel(),a=sc?KPI69:calc(69,0,inS),i=pidx(),ti=ix(),allm=isAll(),b=calc(70,ti,inS);
+  const pv=S.v=='month'?i-1:i-3,bp=(!allm&&pv>=0)?calc(70,pv,inS):{r:null};
   const la=L(a.r,T69),lb=L(b.r,T70);
   let d='';
   if(b.r==null)d='<div class="sub">ปีงบฯ 70 ยังไม่มีข้อมูลรายจ่ายของ'+(S.v=='month'?'เดือน':'ไตรมาส')+'นี้ (อัปเดตทุกเดือน)</div>';
-  else{const dv=bp.r==null?null:b.r-bp.r;d=`<div class="row"><span>เทียบ${S.v=='month'?'เดือน':'ไตรมาส'}ก่อน</span><b>${dv==null?'ยังไม่มีข้อมูลเทียบ':(dv>=0?'▲ +':'▼ ')+f1(dv)+' จุด'}</b></div><div class="row"><span>เทียบผลปีงบฯ 69</span><b>${a.r==null?'—':(b.r-a.r>=0?'▲ +':'▼ ')+f1(b.r-a.r)+' จุด'}</b></div>`}
+  else{const dv=bp.r==null?null:b.r-bp.r;d=(allm?'':`<div class="row"><span>เทียบ${S.v=='month'?'เดือน':'ไตรมาส'}ก่อน</span><b>${dv==null?'ยังไม่มีข้อมูลเทียบ':(dv>=0?'▲ +':'▼ ')+f1(dv)+' จุด'}</b></div>`)+`<div class="row"><span>เทียบผลปีงบฯ 69</span><b>${a.r==null?'—':(b.r-a.r>=0?'▲ +':'▼ ')+f1(b.r-a.r)+' จุด'}</b></div>`}
+  const PEND=['L5377','L5395'],rr=f=>ti<0?f.t:(f.m&&f.m[ti]),UF=FS.filter(f=>{const r=rr(f);return r&&r[1]>0}),usp=UF.reduce((s,f)=>s+rr(f)[1],0),uin=FS.reduce((s,f)=>s+((rr(f)||[0])[0]||0),0),den=sc?685:FS.length,PNL=sc?PEND:PEND.filter(c=>FS.some(f=>f.c==c));
   const al=FS.filter(f=>f.s70=='ได้รับจัดสรร'),cap=al.reduce((s,f)=>s+(f.cap||0),0),rf=al.filter(f=>f.rcv>0),rc=al.reduce((s,f)=>s+(f.rcv||0),0);
   const PS=FS.flatMap(f=>PJ[f.c]||[]),pf=FS.filter(f=>PJ[f.c]).length,ap=PS.reduce((s,p)=>s+p[6],0),sp=PS.reduce((s,p)=>s+p[7],0),np=PS.length;
+  const pbox=`<div class="pbox"><h4>${esc(plabel())} · การใช้เงินของกองทุน</h4><div class="pgrid">
+   <div><div class="sub">กองทุนที่ใช้เงินแล้ว</div><div class="big">${fm(UF.length)}<span class="sub"> / ${fm(den)} แห่ง</span></div><div class="sub"><b>คิดเป็น ${f1(den?UF.length/den*100:null)}%</b> ของกองทุนทั้งหมด</div><div class="meter"><i style="width:${den?Math.min(100,UF.length/den*100):0}%;background:var(--pu)"></i></div></div>
+   <div><div class="sub">ใช้เงินไปแล้วรวม</div><div class="big">${fm(usp)}<span class="sub"> บาท</span></div><div class="sub">จากรายรับรวม ${fm(uin)} บาท (<b>${f1(uin?usp/uin*100:null)}%</b>)</div><div class="meter"><i style="width:${uin?Math.min(100,usp/uin*100):0}%;background:var(--pu)"></i></div></div></div>
+   ${PNL.length?`<div class="note">⚠ มี ${PNL.length} แห่งที่ข้อมูลยังไม่อัปเดต (${PNL.map(esc).join(', ')}) กำลังตรวจสอบข้อมูล · ยังนับรวมอยู่ในฐาน ${fm(den)} แห่ง</div>`:''}</div>`;
   $('cards').innerHTML=`
-  <div class="card"><h3>ปีงบฯ 69 · กองทุนจ่ายเงินได้ ≥ 70%${sc?'':' · '+esc(scl)}</h3><div class="big"><span class="dot ${la}"></span>${a.r==null?'—':a.r.toFixed(2)+'%'}</div>
+  <div class="card wide"><div class="sec"><h3>ปีงบฯ 69 · กองทุนจ่ายเงินได้ ≥ 70%${sc?'':' · '+esc(scl)}</h3><div class="big"><span class="dot ${la}"></span>${a.r==null?'—':a.r.toFixed(2)+'%'}</div>
    ${meter(a.r,null,la)}
    <div class="row"><span>จำนวนกองทุน</span><b>${fm(a.p)} / ${fm(a.t)} แห่ง</b></div>
    <div class="row"><span>สถานะ</span><span class="tag ${la}">${LT[la]}</span></div>
    <div class="sub">ผลสรุปทั้งปีงบฯ${sc?'':' · คำนวณจากข้อมูลรายกองทุน (KPI ทั้งเขตตรึงที่ 572/685)'}</div></div>
-  <div class="card"><h3>ปีงบฯ 70 · ${esc(plabel())}${sc?'':' · '+esc(scl)}</h3><div class="big"><span class="dot ${lb}"></span>${b.r==null?'รอข้อมูล':f1(b.r)+'%'}</div>
+  <div class="sec"><h3>ปีงบฯ 70 · ${esc(plabel())}${sc?'':' · '+esc(scl)}</h3><div class="big"><span class="dot ${lb}"></span>${b.r==null?'รอข้อมูล':f1(b.r)+'%'}</div>
    ${meter(b.r,null,lb)}
-   <div class="row"><span>จำนวนกองทุน</span><b>${b.t?fm(b.p)+' / '+fm(b.t)+' แห่ง':'—'}</b></div>
-   <div class="row"><span>สถานะ</span><span class="tag ${lb}">${LT[lb]}</span></div>${d}</div>
+   <div class="row"><span>กองทุนจ่ายเงินได้ ≥ 70%</span><b>${b.t?fm(b.p)+' / '+fm(b.t)+' แห่ง':'—'}</b></div>
+   <div class="row"><span>สถานะ</span><span class="tag ${lb}">${LT[lb]}</span></div>${d}${pbox}</div></div>
   <div class="card"><h3>ปีงบฯ 70 · การจัดสรรจาก สปสช.${sc?'':' · '+esc(scl)}</h3><div class="big">${fm(rf.length)}<span class="sub"> / ${fm(al.length)} กองทุน ได้รับเงินจัดสรรมาแล้ว</span></div>
    <div class="row"><span>ได้รับเงินไปแล้ว</span><b>${fm(rc)} บาท</b></div>
    <div class="row"><span>คิดเป็นร้อยละของเพดานเงินจัดสรร</span><b>${f1(cap?rc/cap*100:null)}%</b></div>${meter(cap?rc/cap*100:0,100,'ok')}
@@ -265,15 +272,15 @@ function ranks(){
 const COLS0=[['p','จังหวัด'],['a','อำเภอ'],['c','รหัสกองทุน'],['n','กองทุน']];
 const COLS1=[['tot70','รวมรายรับ (บาท)',1],['exp70','รายจ่าย (บาท)',1],['bal70','เงินคงเหลือ (บาท)',1],['p70','การใช้เงินปี 70 %',1],['lt','ไฟ (ปี 70)']];
 const getCols=()=>[...COLS0,...COLS1];
-const m70=f=>{const r=f.m&&f.m[pidx()];return r&&r[0]!=null?r:null};
-const val=(f,k)=>/^pp\d+$/.test(k)?p70(f,+k.slice(2)):k=='tot70'?(m70(f)?m70(f)[0]:null):k=='exp70'?(m70(f)?m70(f)[1]:null):k=='bal70'?(m70(f)?m70(f)[0]-m70(f)[1]:null):k=='p69'?p69(f):k=='p70'?p70(f,pidx()):k=='np'?(PJ[f.c]||[]).length:k=='lt'?p70(f,pidx()):f[k];
+const m70=f=>{const i=ix(),r=i<0?f.t:(f.m&&f.m[i]);return r&&r[0]!=null?r:null};
+const val=(f,k)=>/^pp\d+$/.test(k)?p70(f,+k.slice(2)):k=='tot70'?(m70(f)?m70(f)[0]:null):k=='exp70'?(m70(f)?m70(f)[1]:null):k=='bal70'?(m70(f)?m70(f)[0]-m70(f)[1]:null):k=='p69'?p69(f):k=='p70'?p70(f,ix()):k=='np'?(PJ[f.c]||[]).length:k=='lt'?p70(f,ix()):f[k];
 function rows(){
   const q=S.q_.trim();
-  let r=F.filter(f=>inScope(f)&&(!S.light||LF(p70(f,pidx()))==S.light)&&(!q||(f.n+f.a+f.c).toLowerCase().includes(q.toLowerCase())));
-  const k=S.sort;if(k=='def'){const pv=f=>{const v=p69(f);return v==null?-1:v};r.sort((x,y)=>x.p.localeCompare(y.p,'th')||x.a.localeCompare(y.a,'th')||pv(y)-pv(x));return r}r.sort((x,y)=>{const a=val(x,k),b=val(y,k);if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return(a>b?1:a<b?-1:0)*S.dir});
+  let r=F.filter(f=>inScope(f)&&(!S.light||LF(p70(f,ix()))==S.light)&&(!q||(f.n+f.a+f.c).toLowerCase().includes(q.toLowerCase())));
+  const k=S.sort;if(k=='def'){const pv=f=>{const v=p70(f,ix());return v==null?-1:v};r.sort((x,y)=>pv(y)-pv(x)||x.p.localeCompare(y.p,'th')||x.a.localeCompare(y.a,'th')||x.n.localeCompare(y.n,'th'));return r}r.sort((x,y)=>{const a=val(x,k),b=val(y,k);if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return(a>b?1:a<b?-1:0)*S.dir});
   return r;
 }
-function frow(f){const q=m70(f),v=p70(f,pidx()),ma=false,sfx=ma?' (ล่าสุด: '+pl1(pidx())+')':'';
+function frow(f){const q=m70(f),v=p70(f,ix()),ma=false,sfx=ma?' (ล่าสุด: '+pl1(pidx())+')':'';
   const o={'จังหวัด':f.p,'อำเภอ':f.a,'รหัสกองทุน':f.c,'กองทุน':f.n,'การใช้เงินปี 69 %':p69(f)==null?null:+p69(f).toFixed(2),'สถานะการจัดสรร 70':f.s70,'การเข้าร่วม LTC':f.ltc,'เพดานเงินที่จัดสรร 70 (บาท)':f.cap,['รวมรายรับ (บาท)'+sfx]:q?q[0]:null,['รายจ่าย (บาท)'+sfx]:q?q[1]:null,['เงินคงเหลือ (บาท)'+sfx]:q?q[0]-q[1]:null};
   if(ma)periods().forEach(p=>{const x=p70(f,p.i);o['การใช้เงินปี 70 % ('+p.l+')']=x==null?null:+x.toFixed(2)});
   else o['การใช้เงินปี 70 % ('+plabel()+')']=v==null?null:+v.toFixed(2);
@@ -284,7 +291,7 @@ function table(){
   const ma=false,C=getCols();if(S.sort!='def'&&!C.some(c=>c[0]==S.sort)){S.sort='def';S.dir=1}
   const r=rows(),per=20,pages=Math.max(1,Math.ceil(r.length/per));S.page=Math.min(S.page,pages-1);
   let h='<tr>'+C.map(c=>`<th class="${c[2]?'n':''}" data-k="${c[0]}">${c[1]}${S.sort==c[0]?(S.dir>0?' ▲':' ▼'):''}</th>`).join('')+'<th>รายละเอียดเพิ่มเติม</th></tr>';
-  r.slice(S.page*per,S.page*per+per).forEach(f=>{const v=p70(f,pidx()),l=LF(v),q=m70(f);
+  r.slice(S.page*per,S.page*per+per).forEach(f=>{const v=p70(f,ix()),l=LF(v),q=m70(f);
     h+=`<tr><td>${esc(f.p)}</td><td>${esc(f.a)}</td><td>${esc(f.c)}</td><td>${esc(f.n.replace('กองทุนสุขภาพตำบล',''))}</td>`+(ma?periods().map(p=>fcell(p70(f,p.i))).join('')+`<td><span class="tag ${l}">${LT[l]}</span></td>`:`<td class="n">${fm(q&&q[0])}</td><td class="n">${fm(q&&q[1])}</td><td class="n">${fm(q&&q[0]-q[1])}</td><td class="n">${f1(v)}</td><td><span class="tag ${l}">${LT[l]}</span></td>`)+`<td><button class="btn" data-c="${esc(f.c)}">รายละเอียดเพิ่มเติม</button></td></tr>`});
   $('tb').innerHTML=h;$('cnt').textContent='แสดง '+fm(r.length)+' จาก '+fm(F.length)+' กองทุน';$('pgi').textContent='หน้า '+(S.page+1)+' / '+pages;
   $('tb').querySelectorAll('th[data-k]').forEach(e=>e.onclick=()=>{const k=e.dataset.k;S.dir=S.sort==k?-S.dir:1;S.sort=k;table()});
@@ -298,7 +305,7 @@ function issueChart(ps){
   return `<div class="sub" style="margin-bottom:6px">เรียงตามเงินที่ใช้ไปจริง มาก → น้อย · รวมใช้ไป ${fm(ts)} บาท</div>`+g.map(([k,v],j)=>`<div class="hb"><span title="${esc(k)}">${j+1}. ${esc(k)}</span><div class="meter"><i style="width:${v.s/mx*100}%;background:var(--pri)"></i></div><span style="flex:0 0 auto;min-width:210px;text-align:right">${fm(v.s)} บ. (${f1(ts?v.s/ts*100:0)}%) · ${v.n} โครงการ</span></div>`).join('')+(ts?`<div class="sub" style="margin-top:6px">ใช้เงินมากที่สุด: <b>${esc(g[0][0])}</b></div>`:'<div class="sub" style="margin-top:6px">ยังไม่มียอดใช้จ่ายจริงในโครงการ แท่งกราฟจะแสดงเมื่อมีข้อมูลการใช้เงิน</div>');
 }
 function drill(c){
-  const f=F.find(x=>x.c==c),x=f.x,ps=PJ[c]||[],i=pidx(),q=m70(f),v=p70(f,i),l=LF(v),l69=LF(p69(f));
+  const f=F.find(x=>x.c==c),x=f.x,ps=PJ[c]||[],i=ix(),q=m70(f),v=p70(f,i),l=LF(v),l69=LF(p69(f));
   const tot=ps.reduce((s,p)=>s+p[6],0),sp=ps.reduce((s,p)=>s+p[7],0),lao=f.lao&&f.lao[1]!=null?f.lao[1]:null;
   const est=!q,inc=q?q[0]:(f.cy||0)+(f.cap||0)+(lao||0),ex=q?q[1]:0,tg=inc*TH/100,nd=Math.max(0,tg-ex);
   const W=z=>z==null||z===''?'รอข้อมูล':esc(z);
@@ -344,7 +351,7 @@ $('th').onclick=()=>{const r=document.documentElement,d=matchMedia('(prefers-col
 $('ex').onclick=async()=>{
   const dl=await getDl();
   if(!dl){alert('ไม่สามารถส่งออกไฟล์ในมุมมองนี้ได้ กรุณาเปิดแดชบอร์ดจาก claude.ai');return}
-  const sc0=isRegion(),a=sc0?KPI69:calc(69,0,inScope),i=pidx(),b=calc(70,i,inScope);
+  const sc0=isRegion(),a=sc0?KPI69:calc(69,0,inScope),i=ix(),b=calc(70,i,inScope);
   const sm=[['อัปเดตข้อมูล ณ วันที่',ASOF],['พื้นที่',sc0?'ทั้งเขต':scopeLabel()],[],['ตัวชี้วัด','จำนวนกองทุนที่จ่ายเงินได้ ≥70%','จำนวนกองทุนในฐาน','ร้อยละ','สถานะไฟจราจร'],
    ['ปีงบฯ 69 (สรุปทั้งปี)',a.p,a.t,a.r==null?'':+a.r.toFixed(2),LT[L(a.r,T69)]]];
   if(false)periods().forEach(p=>{const c=calc(70,p.i,inScope);sm.push(['ปีงบฯ 70 ('+p.l+')',c.p,c.t,c.r==null?'':+c.r.toFixed(2),LT[L(c.r,T70)]])});
@@ -529,7 +536,7 @@ function buildD(texts){
     K.rows.forEach(r=>{const code=TXT(r[c]);if(!code||!TXT(r[n]))return;(pj[code]=pj[code]||[]).push([r[n],TXT(r[is]),TXT(r[ty])||'ไม่ระบุ',TXT(r[og])||'',NUM(r[tg])||0,NUM(r[pr])||0,NUM(r[ap])||0,NUM(r[sp])||0])})}
   const funds=[];S.ov.rows.forEach(r=>{const code=TXT(r[5]);if(!code)return;
     const m=[];for(let k=0;k<12;k++){const b=22+6*k,t=NUM(r[b+2]),e=NUM(r[b+3]);m.push(t!=null?[t,e||0]:null)}
-    funds.push({c:code,p:TXT(r[2]),a:TXT(r[3]),n:TXT(r[4]),s69:TXT(r[6]),ltc:TXT(r[8]),s70:TXT(r[9]),pop:NUM(r[10]),cap:NUM(r[11]),x:f69[code]||null,m:m.some(Boolean)?m:null,fp:TXT(r[12]),hp:TXT(r[13]),cy:NUM(r[16]),lao:lao[code]||[null,null],rcv:rcv[code]||0})});
+    funds.push({c:code,p:TXT(r[2]),a:TXT(r[3]),n:TXT(r[4]),s69:TXT(r[6]),ltc:TXT(r[8]),s70:TXT(r[9]),pop:NUM(r[10]),cap:NUM(r[11]),x:f69[code]||null,m:m.some(Boolean)?m:null,t:NUM(r[18])!=null?[NUM(r[18]),NUM(r[19])||0]:null,fp:TXT(r[12]),hp:TXT(r[13]),cy:NUM(r[16]),lao:lao[code]||[null,null],rcv:rcv[code]||0})});
   return{funds,projects:pj,TR}}
 async function loadAll(){
   const texts=await Promise.all(SRC.map(async(u,i)=>{let r;try{r=await fetch(u+'&_='+Date.now(),{cache:'no-store'})}catch(e){throw new Error('เปิดลิงก์ที่ '+(i+1)+' ไม่ได้ (เครือข่ายหรือสิทธิ์การเข้าถึง)')}
@@ -542,7 +549,7 @@ async function loadAll(){
    ถ้าเว้นว่างไว้หรือเรียกไม่สำเร็จ จะสำรองด้วยการตรวจว่าข้อมูลเปลี่ยนไปจากครั้งก่อน
    (บันทึกในเบราว์เซอร์ของผู้เปิด จึงอาจไม่ตรงกับเวลาแก้ไขจริงของ Sheet) */
 const META_URL='https://script.google.com/macros/s/AKfycbw4Gm5lwKPg_ECW6hWNmjCh8MorwbHZDv6Q1PGPM4NSpz0AGVHpa1Vh-hmkC3GtCsTJWw/exec';
-const fmtAsOf=d=>new Date(d).toLocaleString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})+' น.';
+const fmtAsOf=d=>new Date(d).toLocaleDateString('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'long',year:'numeric'});
 async function getAsOf(texts){
   if(META_URL){
     try{const r=await fetch(META_URL+(META_URL.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store'});
