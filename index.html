@@ -51,6 +51,19 @@ th{position:sticky;top:0;background:var(--grb);cursor:pointer;user-select:none}t
 .card.wide{grid-column:span 2}@media(max-width:640px){.card.wide{grid-column:span 1}}.sec+.sec{border-top:1px dashed var(--bd);margin-top:14px;padding-top:14px}.pbox{background:var(--pub);border:1px solid var(--pu);border-radius:12px;padding:10px 14px;margin-top:12px}.pbox h4{margin:0 0 8px;font-size:13.5px;color:var(--pu)}.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}.pgrid .big{font-size:28px;color:var(--pu)}.pbox .meter{background:rgba(123,63,184,.18)}
 .tn{display:flex;gap:8px;flex-wrap:wrap}.tb2{width:100%}.nb td.n b{font-weight:700}
 [data-pg="4"] table td.b{min-width:120px}
+#cards{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:900px){#cards{grid-template-columns:1fr}}
+.hero{grid-column:1/-1;display:flex;gap:20px;flex-wrap:wrap;padding:18px 20px}.hmain{flex:2 1 380px}.h69{flex:1 1 230px;background:var(--grb);border-radius:12px;padding:12px 14px;align-self:flex-start}
+.kh{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}.kh h3{margin:0;font-size:15px;color:var(--tx);font-weight:700}.ic{flex:0 0 36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:18px;background:var(--grb)}
+.kchip{display:inline-block;margin-top:3px;font-size:12px;padding:1px 9px;border-radius:99px;background:var(--grb);color:var(--mu)}
+.hnum{font-size:52px;font-weight:700;line-height:1.05;display:flex;align-items:center}.hnum small,.kbig small{font-size:.45em;color:var(--mu);font-weight:600;margin-left:3px}
+.n69{font-size:26px;font-weight:700;margin-top:4px}.kbig{font-size:30px;font-weight:700;line-height:1.15;margin:2px 0 6px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}.kv>div{background:var(--grb);border-radius:10px;padding:8px 12px}.kv>div>span:first-child{display:block;font-size:12px;color:var(--mu)}.kv b{font-size:16px}
+.kc .row{padding:3px 0}
+.at thead{position:sticky;top:0;z-index:2}.at thead th{position:static;text-align:center;vertical-align:middle;line-height:1.3}.at th.gh{font-size:13px}
+.at .g1{background:color-mix(in srgb,var(--pri) 6%,transparent)}.at .g2{background:color-mix(in srgb,var(--warn) 7%,transparent)}.at .g3{background:color-mix(in srgb,var(--ok) 7%,transparent)}
+.at thead .g1{background:color-mix(in srgb,var(--pri) 16%,var(--grb))}.at thead .g2{background:color-mix(in srgb,var(--warn) 18%,var(--grb))}.at thead .g3{background:color-mix(in srgb,var(--ok) 16%,var(--grb))}
+.at tbody tr:hover td{filter:brightness(.97)}.at tfoot th,.at tfoot td{background:var(--grb);font-weight:700;border-top:2px solid var(--bd);position:sticky;bottom:0}.at th.l{text-align:left}
+.mb{display:flex;align-items:center;gap:6px;min-width:120px}.mb .meter{flex:1;margin:0;height:8px}.mb b{min-width:44px;text-align:right}
 </style>
 </head>
 <body><div id="ld"></div>
@@ -80,10 +93,10 @@ th{position:sticky;top:0;background:var(--grb);cursor:pointer;user-select:none}t
 <h2>ความก้าวหน้ารายเดือน ปีงบฯ 70 (ร้อยละกองทุนที่จ่ายเงินได้ ≥ 70)</h2>
 <div class="strip" id="strip"></div>
 <h2 id="pvh">เปรียบเทียบรายจังหวัด</h2>
-<div class="scroll"><table id="pv"></table></div>
+<div class="scroll"><table id="pv" class="at"></table></div>
 <h2 id="dth">เปรียบเทียบรายอำเภอ</h2>
-<div class="scroll" style="max-height:520px;overflow-y:auto"><table id="dt"></table></div>
-<p class="note">ตัวหารปี 69 นับกองทุนที่ไม่มีรายรับปี 69 เป็นกองทุนที่ไม่ผ่านเกณฑ์ · ไฟ: เขียว = ผ่านเกณฑ์, เหลือง = ใกล้เกณฑ์, แดง = ต่ำกว่าเกณฑ์</p>
+<div class="scroll" style="max-height:520px;overflow-y:auto"><table id="dt" class="at"></table></div>
+<p class="note">ตัวเลขปี 70 ตามเดือน/ไตรมาสที่เลือกด้านบน · "กองทุนที่ใช้เงินแล้ว" = มียอดรายจ่าย &gt; 0 · "% ใช้เงิน" = ใช้เงินไป ÷ รายรับรวม · "กองทุนที่ได้รับโอน" = ได้รับเงินจัดสรรจาก สปสช. แล้ว / กองทุนที่ได้รับจัดสรร · "% ของเพดาน" = เงินที่ได้รับแล้ว ÷ เพดานเงินจัดสรร · ไฟ KPI: เขียว = ผ่านเกณฑ์, เหลือง = ใกล้เกณฑ์, แดง = ต่ำกว่าเกณฑ์</p>
 
 <h2 id="t10h"></h2><div class="card" id="t10"></div>
 <h2 id="g10h"></h2><div class="card" id="g10"></div>
@@ -189,41 +202,57 @@ function barTable(ps,ix,lab){
   return `<div style="font-size:16px;margin-bottom:10px">ใช้เงินไปรวม <b>${fm(ts)} บาท</b>${ts?' · มากที่สุดคือ <b>'+esc(g[0][0])+'</b> ('+f1(g[0][1].s/ts*100)+'%)':''}</div>
   <div class="scroll" style="border:0"><table><tr><th>${lab}</th><th style="width:40%">สัดส่วนเงินที่ใช้ไป</th><th class="n">ใช้ไป (บาท)</th><th class="n">ร้อยละ</th><th class="n">โครงการ</th></tr>`+g.map(([k,v])=>`<tr><td style="white-space:normal"><b>${esc(k)}</b></td><td><div class="meter" style="height:14px;margin:0"><i style="width:${v.s/mx*100}%;background:var(--pri)"></i></div></td><td class="n">${fm(v.s)}</td><td class="n"><b>${f1(ts?v.s/ts*100:0)}%</b></td><td class="n">${v.n}</td></tr>`).join('')+`</table></div>`;
 }
+const LV={ok:'--ok',warn:'--warn',bad:'--bad',g0:'--gr'};
+const kh=(ic,t,sub)=>`<div class="kh"><span class="ic">${ic}</span><div><h3>${t}</h3>${sub?`<div class="kchip">${sub}</div>`:''}</div></div>`;
+const bar=(v,col)=>`<div class="meter"><i style="width:${v==null?0:Math.min(100,Math.max(0,v))}%;background:${col||'var(--pri)'}"></i></div>`;
 function cards(){
   const inS=inScope,FS=F.filter(inS),sc=isRegion(),scl=scopeLabel(),a=sc?KPI69:calc(69,0,inS),i=pidx(),ti=ix(),allm=isAll(),b=calc(70,ti,inS);
   const pv=S.v=='month'?i-1:i-3,bp=(!allm&&pv>=0)?calc(70,pv,inS):{r:null};
-  const la=L(a.r,T69),lb=L(b.r,T70);
-  let d='';
-  if(b.r==null)d='<div class="sub">ปีงบฯ 70 ยังไม่มีข้อมูลรายจ่ายของ'+(S.v=='month'?'เดือน':'ไตรมาส')+'นี้ (อัปเดตทุกเดือน)</div>';
-  else{const dv=bp.r==null?null:b.r-bp.r;d=(allm?'':`<div class="row"><span>เทียบ${S.v=='month'?'เดือน':'ไตรมาส'}ก่อน</span><b>${dv==null?'ยังไม่มีข้อมูลเทียบ':(dv>=0?'▲ +':'▼ ')+f1(dv)+' จุด'}</b></div>`)+`<div class="row"><span>เทียบผลปีงบฯ 69</span><b>${a.r==null?'—':(b.r-a.r>=0?'▲ +':'▼ ')+f1(b.r-a.r)+' จุด'}</b></div>`}
+  const la=L(a.r,T69),lb=L(b.r,T70),sub=esc(plabel())+(sc?' · ทั้งเขต':' · '+esc(scl));
+  const dv=b.r==null||bp.r==null?null:b.r-bp.r,d69=b.r==null||a.r==null?null:b.r-a.r;
+  const arrow=v=>v==null?'<span class="sub">—</span>':`<b style="color:var(${v>=0?'--ok':'--bad'})">${v>=0?'▲ +':'▼ '}${f1(v)}</b> <span class="sub">จุด</span>`;
   const PEND=['L5377','L5395'],rr=f=>ti<0?f.t:(f.m&&f.m[ti]),UF=FS.filter(f=>{const r=rr(f);return r&&r[1]>0}),usp=UF.reduce((s,f)=>s+rr(f)[1],0),uin=FS.reduce((s,f)=>s+((rr(f)||[0])[0]||0),0),den=sc?685:FS.length,PNL=sc?PEND:PEND.filter(c=>FS.some(f=>f.c==c));
   const al=FS.filter(f=>f.s70=='ได้รับจัดสรร'),cap=al.reduce((s,f)=>s+(f.cap||0),0),rf=al.filter(f=>f.rcv>0),rc=al.reduce((s,f)=>s+(f.rcv||0),0);
   const PS=FS.flatMap(f=>PJ[f.c]||[]),pf=FS.filter(f=>PJ[f.c]).length,ap=PS.reduce((s,p)=>s+p[6],0),sp=PS.reduce((s,p)=>s+p[7],0),np=PS.length;
-  const pbox=`<div class="pbox"><h4>${esc(plabel())} · การใช้เงินของกองทุน</h4><div class="pgrid">
-   <div><div class="sub">กองทุนที่ใช้เงินแล้ว</div><div class="big">${fm(UF.length)}<span class="sub"> / ${fm(den)} แห่ง</span></div><div class="sub"><b>คิดเป็น ${f1(den?UF.length/den*100:null)}%</b> ของกองทุนทั้งหมด</div><div class="meter"><i style="width:${den?Math.min(100,UF.length/den*100):0}%;background:var(--pu)"></i></div></div>
-   <div><div class="sub">ใช้เงินไปแล้วรวม</div><div class="big">${fm(usp)}<span class="sub"> บาท</span></div><div class="sub">จากรายรับรวม ${fm(uin)} บาท (<b>${f1(uin?usp/uin*100:null)}%</b>)</div><div class="meter"><i style="width:${uin?Math.min(100,usp/uin*100):0}%;background:var(--pu)"></i></div></div></div>
-   ${PNL.length?`<div class="note">⚠ มี ${PNL.length} แห่งที่ข้อมูลยังไม่อัปเดต (${PNL.map(esc).join(', ')}) กำลังตรวจสอบข้อมูล · ยังนับรวมอยู่ในฐาน ${fm(den)} แห่ง</div>`:''}</div>`;
+  const up=den?UF.length/den*100:null,mp=uin?usp/uin*100:null;
   $('cards').innerHTML=`
-  <div class="card wide"><div class="sec"><h3>ปีงบฯ 69 · กองทุนจ่ายเงินได้ ≥ 70%${sc?'':' · '+esc(scl)}</h3><div class="big"><span class="dot ${la}"></span>${a.r==null?'—':a.r.toFixed(2)+'%'}</div>
-   ${meter(a.r,null,la)}
-   <div class="row"><span>จำนวนกองทุน</span><b>${fm(a.p)} / ${fm(a.t)} แห่ง</b></div>
-   <div class="row"><span>สถานะ</span><span class="tag ${la}">${LT[la]}</span></div>
-   <div class="sub">ผลสรุปทั้งปีงบฯ${sc?'':' · คำนวณจากข้อมูลรายกองทุน (KPI ทั้งเขตตรึงที่ 572/685)'}</div></div>
-  <div class="sec"><h3>ปีงบฯ 70 · ${esc(plabel())}${sc?'':' · '+esc(scl)}</h3><div class="big"><span class="dot ${lb}"></span>${b.r==null?'รอข้อมูล':f1(b.r)+'%'}</div>
-   ${meter(b.r,null,lb)}
-   <div class="row"><span>กองทุนจ่ายเงินได้ ≥ 70%</span><b>${b.t?fm(b.p)+' / '+fm(b.t)+' แห่ง':'—'}</b></div>
-   <div class="row"><span>สถานะ</span><span class="tag ${lb}">${LT[lb]}</span></div>${d}${pbox}</div></div>
-  <div class="card"><h3>ปีงบฯ 70 · การจัดสรรจาก สปสช.${sc?'':' · '+esc(scl)}</h3><div class="big">${fm(rf.length)}<span class="sub"> / ${fm(al.length)} กองทุน ได้รับเงินจัดสรรมาแล้ว</span></div>
-   <div class="row"><span>ได้รับเงินไปแล้ว</span><b>${fm(rc)} บาท</b></div>
-   <div class="row"><span>คิดเป็นร้อยละของเพดานเงินจัดสรร</span><b>${f1(cap?rc/cap*100:null)}%</b></div>${meter(cap?rc/cap*100:0,100,'ok')}
-   <div class="row"><span>เพดานเงินจัดสรรรวม</span><b>${fm(cap)} บาท</b></div>
-   <div class="row"><span>ได้รับจัดสรร</span><b>${fm(al.length)} กองทุน</b></div>
+  <div class="card hero" style="border-top:5px solid var(${LV[lb]})">
+   <div class="hmain">
+    ${kh('🎯','ปีงบฯ 70 · กองทุนจ่ายเงินได้ ≥ 70%',sub)}
+    <div class="hnum"><span class="dot ${lb}"></span>${b.r==null?'รอข้อมูล':f1(b.r)+'<small>%</small>'}<span class="tag ${lb}" style="font-size:13px;margin-left:10px">${LT[lb]}</span></div>
+    ${meter(b.r,null,lb)}
+    <div class="kv">
+     <div><span>กองทุนที่จ่ายได้ ≥ 70%</span><b>${b.t?fm(b.p)+' / '+fm(b.t):'—'}</b> <span class="sub">แห่ง</span></div>
+     ${allm?'':`<div><span>เทียบ${S.v=='month'?'เดือน':'ไตรมาส'}ก่อน</span>${arrow(dv)}</div>`}
+     <div><span>เทียบผลปีงบฯ 69</span>${arrow(d69)}</div>
+    </div>
+    ${b.r==null?'<div class="sub" style="margin-top:8px">ยังไม่มีข้อมูลรายจ่ายของ'+(S.v=='month'?'เดือน':'ไตรมาส')+'นี้ (อัปเดตทุกเดือน)</div>':''}
+   </div>
+   <div class="h69">
+    <div class="sub" style="font-weight:600">ปีงบฯ 69 · กองทุนจ่ายเงินได้ ≥ 70%</div>
+    <div class="n69"><span class="dot ${la}" style="width:11px;height:11px"></span>${a.r==null?'—':a.r.toFixed(2)+'%'}</div>
+    ${meter(a.r,null,la)}
+    <div class="row"><span>จำนวนกองทุน</span><b>${fm(a.p)} / ${fm(a.t)} แห่ง</b></div>
+    <div class="row"><span>สถานะ</span><span class="tag ${la}">${LT[la]}</span></div>
+    <div class="sub" style="font-size:12px;margin-top:4px">ผลสรุปทั้งปีงบฯ${sc?'':' · KPI ทั้งเขตตรึงที่ 572/685'}</div>
+   </div>
+  </div>
+  <div class="card kc">${kh('💰','ปีงบฯ 70 · การใช้เงินกองทุนทั้งหมด',sub)}
+   <div class="kbig">${fm(usp)}<small> บาท</small></div>
+   <div class="row"><span>ใช้ไปจากรายรับรวม ${fm(uin)} บาท</span><b>${f1(mp)}%</b></div>${bar(mp)}
+   <div class="row" style="margin-top:10px"><span>กองทุนที่ใช้เงินแล้ว</span><b>${fm(UF.length)} / ${fm(den)} แห่ง</b></div>
+   <div class="row"><span>คิดเป็นร้อยละของกองทุนทั้งหมด</span><b>${f1(up)}%</b></div>${bar(up)}
+   ${PNL.length?`<div class="note">⚠ มี ${PNL.length} แห่งที่ข้อมูลยังไม่อัปเดต (${PNL.map(esc).join(', ')}) กำลังตรวจสอบ · ยังนับรวมในฐาน ${fm(den)} แห่ง</div>`:''}</div>
+  <div class="card kc" data-k="alloc">${kh('🏦','ปีงบฯ 70 · การจัดสรรจาก สปสช.',sc?'ทั้งเขต':esc(scl))}
+   <div class="kbig">${fm(rc)}<small> บาท</small></div>
+   <div class="row"><span>ได้รับแล้ว จากเพดาน ${fm(cap)} บาท</span><b>${f1(cap?rc/cap*100:null)}%</b></div>${bar(cap?rc/cap*100:0,'var(--ok)')}
+   <div class="row" style="margin-top:10px"><span>กองทุนที่ได้รับเงินโอนแล้ว</span><b>${fm(rf.length)} / ${fm(al.length)} แห่ง</b></div>
    <div class="row"><span>ไม่ได้รับจัดสรร</span><b>${fm(FS.filter(f=>f.s70=='ไม่ได้รับจัดสรร').length)} แห่ง</b></div>
    <div class="row"><span>กองทุนที่เข้าร่วมทั้งหมด</span><b>${fm(FS.length)} แห่ง</b></div></div>
-  <div class="card"><h3>ปีงบฯ 70 · โครงการที่ได้รับอนุมัติ (สะสม)${sc?'':' · '+esc(scl)}</h3><div class="big">${fm(np)}<span class="sub"> โครงการ</span></div>
-   <div class="row"><span>จาก</span><b>${fm(pf)} กองทุน</b></div>
-   <div class="row"><span>อนุมัติไปแล้ว</span><b>${fm(ap)} บาท</b></div>
-   <div class="row"><span>ใช้เงินไปแล้ว</span><b>${fm(sp)} บาท (${f1(ap?sp/ap*100:null)}%)</b></div>${meter(ap?sp/ap*100:0,100,'ok')}
+  <div class="card kc">${kh('📋','ปีงบฯ 70 · โครงการที่ได้รับอนุมัติ (สะสม)',sc?'ทั้งเขต':esc(scl))}
+   <div class="kbig">${fm(np)}<small> โครงการ</small></div>
+   <div class="row"><span>ใช้ไปแล้ว ${fm(sp)} จากงบอนุมัติ ${fm(ap)} บาท</span><b>${f1(ap?sp/ap*100:null)}%</b></div>${bar(ap?sp/ap*100:0,'var(--ok)')}
+   <div class="row" style="margin-top:10px"><span>กองทุนที่มีโครงการ</span><b>${fm(pf)} แห่ง</b></div>
    <div class="row"><span>คงเหลือจากงบอนุมัติ</span><b>${fm(ap-sp)} บาท</b></div></div>
 `;
   $('t10').innerHTML=barTable(PS,2,'ประเภทโครงการ (ข้อ 10)');$('g10').innerHTML=g10(PS);$('g10h').textContent='วิเคราะห์ 10 อันดับประเด็นปัญหาสุขภาพที่ใช้เงินมากที่สุด (รวมประเด็นที่ใกล้เคียงกัน)'+(sc?'':' · '+scl);
@@ -240,19 +269,30 @@ function strip(){
   $('strip2').querySelectorAll('.m').forEach(e=>e.onclick=()=>{S.v='quarter';S.q=+e.dataset.q;sync();all()});
 }
 const PROVS=[...new Set(F.map(f=>f.p))].sort();
+function aStat(fl){
+  const FS=F.filter(fl),ti=ix(),rr=f=>ti<0?f.t:(f.m&&f.m[ti]),k=calc(70,ti,fl);
+  const UF=FS.filter(f=>{const r=rr(f);return r&&r[1]>0}),usp=UF.reduce((s,f)=>s+rr(f)[1],0),uin=FS.reduce((s,f)=>s+((rr(f)||[0])[0]||0),0);
+  const al=FS.filter(f=>f.s70=='ได้รับจัดสรร'),got=al.filter(f=>f.rcv>0),rc=al.reduce((s,f)=>s+(f.rcv||0),0),cap=al.reduce((s,f)=>s+(f.cap||0),0);
+  return{n:FS.length,k,uf:UF.length,usp,uin,up:uin?usp/uin*100:null,al:al.length,got:got.length,rc,cap}}
+function aRow(lbl,s,tot){
+  const lk=L(s.k.r,T70),T=tot?'th':'td';
+  const mb=(v,c)=>`<div class="mb"><div class="meter"><i style="width:${v==null?0:Math.min(100,v)}%;background:${c}"></i></div><b>${v==null?'—':f1(v)+'%'}</b></div>`;
+  return `<tr${tot?' class="tot"':''}><${T} class="l">${lbl}</${T}><td class="n">${fm(s.n)}</td>
+  <td class="n g1">${s.k.r==null?'—':fm(s.k.p)+' / '+fm(s.k.t)}</td><td class="g1"><span class="dot ${lk}" style="width:10px;height:10px"></span><b>${s.k.r==null?'รอข้อมูล':f1(s.k.r)+'%'}</b></td>
+  <td class="n g2">${fm(s.uf)} <span class="sub">/ ${fm(s.n)}</span></td><td class="n g2"><b>${fm(s.usp)}</b></td><td class="n g2 sub">${fm(s.uin)}</td><td class="g2">${mb(s.up,'var(--pri)')}</td>
+  <td class="n g3">${fm(s.got)} <span class="sub">/ ${fm(s.al)}</span></td><td class="n g3"><b>${fm(s.rc)}</b></td><td class="g3">${mb(s.cap?s.rc/s.cap*100:null,'var(--ok)')}</td></tr>`}
+function aTable(el,lab,gs,flOf,lblOf){
+  const h=`<thead><tr><th rowspan="2">${lab}</th><th rowspan="2" class="n">กองทุน<br>(แห่ง)</th><th colspan="2" class="gh g1">🎯 KPI ปี 70 · จ่ายได้ ≥ 70%<br><span class="sub">${esc(plabel())}</span></th><th colspan="4" class="gh g2">💰 การใช้เงินกองทุน ปี 70</th><th colspan="3" class="gh g3">🏦 เงินจัดสรรจาก สปสช.</th></tr>
+  <tr><th class="n g1">ผ่าน / ทั้งหมด</th><th class="g1">ร้อยละ</th><th class="n g2">กองทุนที่ใช้เงินแล้ว</th><th class="n g2">ใช้เงินไป (บาท)</th><th class="n g2">รายรับรวม (บาท)</th><th class="g2">% ใช้เงิน</th><th class="n g3">กองทุนที่ได้รับโอน</th><th class="n g3">ได้รับเงินแล้ว (บาท)</th><th class="g3">% ของเพดาน</th></tr></thead>`;
+  $(el).innerHTML=h+'<tbody>'+gs.map(g=>aRow(lblOf(g),aStat(flOf(g)))).join('')+'</tbody><tfoot>'+aRow('รวม'+(isRegion()?'ทั้งเขต':' '+esc(scopeLabel())),aStat(inScope),1)+'</tfoot>';
+}
 function prov(){
-  const i=pidx(),ma=false,P=periods(),gs=[...new Set(F.filter(inScope).map(f=>f.p))].sort((x,y)=>x.localeCompare(y,'th'));
-  let h='<tr><th>จังหวัด</th><th class="n">กองทุน</th><th class="n">ปี 69: จ่ายได้ ≥70% (แห่ง)</th><th class="n">ร้อยละ</th><th>ไฟ ปี 69</th>'+(ma?P.map(p=>'<th class="n">'+esc(p.l)+'</th>').join(''):'<th class="n">ปี 70 ('+esc(plabel())+')</th><th>ไฟ ปี 70</th>')+'</tr>';
-  gs.forEach(g=>{const fl=f=>inScope(f)&&f.p==g,a=calc(69,0,fl),la=L(a.r,T69);
-    h+=`<tr><td>${esc(g)}</td><td class="n">${F.filter(fl).length}</td><td class="n">${a.p}/${a.t}</td><td class="n">${f1(a.r)}</td><td><span class="tag ${la}">${LT[la]}</span></td>`+(ma?P.map(p=>pcell(calc(70,p.i,fl))).join(''):(()=>{const b=calc(70,i,fl),lb=L(b.r,T70);return `<td class="n">${b.r==null?'—':f1(b.r)}</td><td><span class="tag ${lb}">${LT[lb]}</span></td>`})())+'</tr>'});
-  $('pv').innerHTML=h;
+  const gs=[...new Set(F.filter(inScope).map(f=>f.p))].sort((x,y)=>x.localeCompare(y,'th'));
+  aTable('pv','จังหวัด',gs,g=>f=>inScope(f)&&f.p==g,g=>'<b>'+esc(g)+'</b>');
 }
 function dist(){
-  const i=pidx(),ma=false,P=periods(),gs=[...new Set(F.filter(inScope).map(f=>f.p+'|'+f.a))].sort((x,y)=>x.localeCompare(y,'th'));
-  let h='<tr><th>อำเภอ</th><th class="n">กองทุน</th><th class="n">ปี 69: จ่ายได้ ≥70% (แห่ง)</th><th class="n">ร้อยละ</th><th>ไฟ ปี 69</th>'+(ma?P.map(p=>'<th class="n">'+esc(p.l)+'</th>').join(''):'<th class="n">ปี 70 ('+esc(plabel())+')</th><th>ไฟ ปี 70</th>')+'</tr>';
-  gs.forEach(g=>{const [p,a]=g.split('|'),fl=f=>inScope(f)&&f.p==p&&f.a==a,x=calc(69,0,fl),la=L(x.r,T69);
-    h+=`<tr><td>${esc(a)}</td><td class="n">${F.filter(fl).length}</td><td class="n">${x.p}/${x.t}</td><td class="n">${f1(x.r)}</td><td><span class="tag ${la}">${LT[la]}</span></td>`+(ma?P.map(q=>pcell(calc(70,q.i,fl))).join(''):(()=>{const b=calc(70,i,fl),lb=L(b.r,T70);return `<td class="n">${b.r==null?'—':f1(b.r)}</td><td><span class="tag ${lb}">${LT[lb]}</span></td>`})())+'</tr>'});
-  $('dt').innerHTML=h;
+  const gs=[...new Set(F.filter(inScope).map(f=>f.p+'|'+f.a))].sort((x,y)=>x.localeCompare(y,'th'));
+  aTable('dt','อำเภอ',gs,g=>{const[p,a]=g.split('|');return f=>inScope(f)&&f.p==p&&f.a==a},g=>{const[p,a]=g.split('|');return '<b>'+esc(a)+'</b>'+(S.sp?'':' <span class="sub">จ.'+esc(p)+'</span>')});
 }
 function act(f){const i=pidx(),ps=PJ[f.c]||[],sp=ps.reduce((s,p)=>s+p[7],0);const inc=(f.cy||0)+(f.cap||0)+(f.lao&&f.lao[1]||0);return{f,v:p70(f,i),n:ps.length,sp,sc:inc?sp/inc*100:0}}
 function rkTable(rows,el,rank){
@@ -469,7 +509,7 @@ function rk(){
   <div class="card"><h3><span class="dot bad"></span>ยังไม่ขับเคลื่อน (&lt; 40)</h3><div class="big">${fm(cn('bad'))}<span class="sub"> กอง · ${pc(cn('bad'))}%</span></div></div>`;
   $('rkh').innerHTML='<b>วิธีให้คะแนน (เต็ม 100):</b> '+RC.map(([k,nm,w])=>`<span class="tag ${A[k]?'ok':'g0'}">${nm} ${w}</span>`).join(' ')+'<br>การใช้เงินคิดตาม % การใช้เงินของกองทุน ('+(latest>=0?'ปี 70 ถึงเดือน '+MN[latest]:'ใช้ผลการใช้เงินปี 69 จากชีต เพราะปี 70 ยังไม่มีรายจ่ายรายเดือน')+') · หัวข้อสีเทา = ข้อมูลปี 70 ยังไม่มีในไฟล์ จึงยังไม่นับ (คะแนนคิดเฉพาะหัวข้อที่มีข้อมูล และจะนับเพิ่มอัตโนมัติเมื่อมีข้อมูล) · นับเฉพาะกองทุนที่ได้รับจัดสรรปี 70 · ใช้ตัวกรองจังหวัด/อำเภอด้านบนได้';
   if(!(A.use||A.fp||A.hp||A.lao||A.pj)){
-    const w=(c,tt)=>`<div class="card"><h3><span class="dot ${c}"></span>${tt}</h3><div class="big">รอข้อมูล</div><div class="sub">ปี 70 ยังไม่มีข้อมูลสำหรับคำนวณ</div></div>`,c0=$('cards').children[1];
+    const w=(c,tt)=>`<div class="card"><h3><span class="dot ${c}"></span>${tt}</h3><div class="big">รอข้อมูล</div><div class="sub">ปี 70 ยังไม่มีข้อมูลสำหรับคำนวณ</div></div>`,c0=$('cards').querySelector('[data-k="alloc"]');
     $('rkc').innerHTML=(c0?c0.outerHTML:'')+w('ok','ขับเคลื่อนดี (≥ 70 คะแนน)')+w('warn','ขับเคลื่อนบางส่วน (40–69.9)')+w('bad','ยังไม่ขับเคลื่อน (&lt; 40)');
     const m='<div class="sub" style="padding:10px">รอข้อมูลปี 70 (รายจ่ายรายเดือน แผนการเงิน แผนสุขภาพชุมชน เงินสมทบ อปท. หรือโครงการที่อนุมัติ) จะคำนวณและแสดงอัตโนมัติเมื่อมีข้อมูลในไฟล์</div>';
     $('rkd').innerHTML='<tr><td>'+m+'</td></tr>';$('rpi').textContent='';$('rks').innerHTML=m;$('rk2').innerHTML=m;$('rkn').textContent='';
