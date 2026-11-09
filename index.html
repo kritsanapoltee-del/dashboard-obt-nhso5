@@ -68,7 +68,10 @@ th{position:sticky;top:0;background:var(--grb);cursor:pointer;user-select:none}t
 .card.wide{grid-column:span 2}@media(max-width:640px){.card.wide{grid-column:span 1}}.sec+.sec{border-top:1px dashed var(--bd);margin-top:14px;padding-top:14px}.pbox{background:var(--pub);border:1px solid var(--pu);border-radius:12px;padding:10px 14px;margin-top:12px}.pbox h4{margin:0 0 8px;font-size:13.5px;color:var(--pu)}.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}.pgrid .big{font-size:28px;color:var(--pu)}.pbox .meter{background:rgba(123,63,184,.18)}
 .tn{display:flex;gap:8px;flex-wrap:wrap}.tb2{width:100%}.nb td.n b{font-weight:700}
 [data-pg="4"] table td.b{min-width:120px}
-#cards{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:900px){#cards{grid-template-columns:1fr}}
+#cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ov3{display:flex;flex-direction:column;padding:16px 18px}.obig{font-size:36px;font-weight:700;line-height:1.1;display:flex;align-items:center;gap:8px;margin:2px 0 8px}.obig small{font-size:.45em;color:var(--mu);font-weight:600}.obig .tag{font-size:13px}
+.ocap{font-size:12.5px;color:var(--mu);margin-top:4px}.ocap b{color:var(--tx)}.ostats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:12px}.ostats .dx-stat{background:var(--grb);border:0}.ostats .dx-stat b{font-size:17px}
+.ins{font-size:14.5px;line-height:1.7;margin-bottom:10px;padding:10px 14px;background:var(--grb);border-radius:10px}@media(max-width:900px){#cards{grid-template-columns:1fr}}
 .hero{grid-column:1/-1;display:flex;gap:20px;flex-wrap:wrap;padding:18px 20px}.hmain{flex:2 1 380px}.h69{flex:1 1 230px;background:var(--grb);border-radius:12px;padding:12px 14px;align-self:flex-start}
 .kh{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}.kh h3{margin:0;font-size:15px;color:var(--tx);font-weight:700}.ic{flex:0 0 36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:18px;background:var(--grb)}
 .kchip{display:inline-block;margin-top:3px;font-size:12px;padding:1px 9px;border-radius:99px;background:var(--grb);color:var(--mu)}
@@ -82,7 +85,7 @@ th{position:sticky;top:0;background:var(--grb);cursor:pointer;user-select:none}t
 .at tbody tr:hover td{filter:brightness(.97)}.at tfoot th,.at tfoot td{background:var(--grb);font-weight:700;border-top:2px solid var(--bd);position:sticky;bottom:0}.at th.l{text-align:left}
 .at.cmp{font-size:13px}.at.cmp th,.at.cmp td{padding:6px 7px}.at.cmp thead th{white-space:normal}.at.cmp td.l,.at.cmp th.l{white-space:normal;min-width:110px}
 .mb{display:flex;align-items:center;gap:5px;min-width:96px}
-h2.fold{cursor:pointer;user-select:none}h2.fold::after{content:'  ▾ ซ่อน';font-size:12px;font-weight:500;color:var(--mu);margin-left:8px;padding:2px 8px;border:1px solid var(--bd);border-radius:99px}h2.fold.off::after{content:'  ▸ แสดงตาราง'}h2.fold:hover::after{color:var(--pri);border-color:var(--pri)}.mb .meter{flex:1;margin:0;height:8px}.mb b{min-width:44px;text-align:right}
+h2.fold{cursor:pointer;user-select:none}h2.fold::after{content:'  ▾ ซ่อน';font-size:12px;font-weight:500;color:var(--mu);margin-left:8px;padding:2px 8px;border:1px solid var(--bd);border-radius:99px}h2.fold.off::after{content:'  ▸ แสดง'}h2.fold:hover::after{color:var(--pri);border-color:var(--pri)}.mb .meter{flex:1;margin:0;height:8px}.mb b{min-width:44px;text-align:right}
 </style>
 </head>
 <body><div id="ld"></div>
@@ -207,21 +210,34 @@ const GR=[['บริหารจัดการกองทุน',['#บริ
 ['ทันตสุขภาพ (ช่องปาก)',['ช่องปาก','ฟัน']],
 ['ส่งเสริมสุขภาพทั่วไป / ทุกกลุ่มวัย',['ส่งเสริมสุขภาพ','ทั่วไป','โรคอื่น']]];
 function gOf(s){if(!s)return 'ไม่ระบุประเด็น';for(const[g,ks]of GR)if(ks.some(k=>s.includes(k)))return g;return 'อื่นๆ'}
-function g10(ps){
+/* วิเคราะห์จากโครงการที่ "ได้รับอนุมัติ" (เรียงตามงบอนุมัติ) — โครงการอาจยังไม่ได้ใช้เงิน */
+function g10(ps,FS){
+  if(!ps.length)return '<div class="sub">ยังไม่มีโครงการที่ได้รับอนุมัติ</div>';
   const m={};ps.forEach(p=>{const g=gOf(p[1]);m[g]=m[g]||{n:0,a:0,s:0,L:new Set()};m[g].n++;m[g].a+=p[6];m[g].s+=p[7];m[g].L.add(p[1]||'')});
-  const tot=ps.reduce((s,p)=>s+p[7],0);if(!ps.length)return '<div class="sub">ยังไม่มีโครงการที่ได้รับอนุมัติ</div>';
-  const NH=['ไม่ระบุประเด็น','บริหารจัดการกองทุน'],all=Object.entries(m),g=all.filter(e=>!NH.includes(e[0])).sort((x,y)=>y[1].s-x[1].s),top=g.slice(0,10),mx=Math.max(top.length?top[0][1].s:1,1),pc=v=>f1(tot?v/tot*100:0);
-  const s3=top.slice(0,3).reduce((s,e)=>s+e[1].s,0),nh=all.filter(e=>NH.includes(e[0]));
-  return `<div style="font-size:15px;line-height:1.7;margin-bottom:10px"><b>สรุปการวิเคราะห์:</b> ใช้เงินไปกับ <b>${esc(top[0][0])}</b> มากที่สุด ${fm(top[0][1].s)} บาท (${pc(top[0][1].s)}% ของเงินที่ใช้ทั้งหมด ${fm(tot)} บาท)${top.length>2?' · 3 อันดับแรกรวมกัน '+pc(s3)+'%':''}${nh.length?' · ไม่นับเป็นประเด็นสุขภาพ: '+nh.map(([k,v])=>k+' '+fm(v.s)+' บาท ('+pc(v.s)+'%)').join(', '):''}</div>
-  <div class="scroll" style="border:0"><table><tr><th>#</th><th>กลุ่มประเด็นปัญหาสุขภาพ</th><th style="width:30%">สัดส่วน</th><th class="n">ใช้ไป (บาท)</th><th class="n">ร้อยละของเงินที่ใช้ทั้งหมด</th><th class="n">โครงการ</th><th class="n">รวมจากกี่ชื่อประเด็น</th></tr>`+top.map(([k,v],j)=>`<tr><td>${j+1}</td><td style="white-space:normal"><b>${esc(k)}</b></td><td><div class="meter" style="height:14px;margin:0"><i style="width:${v.s/mx*100}%;background:var(--pri)"></i></div></td><td class="n">${fm(v.s)}</td><td class="n"><b>${pc(v.s)}%</b></td><td class="n">${v.n}</td><td class="n">${v.L.size}</td></tr>`).join('')+`</table></div><div class="note">จัดกลุ่มจากชื่อประเด็นที่แต่ละกองทุนพิมพ์เอง โดยรวมชื่อที่มีความหมายใกล้เคียงกัน (เช่น กลุ่มผู้สูงอายุ) เกณฑ์การจัดกลุ่มเป็นการจัดโดยการจับคำสำคัญ ควรตรวจสอบก่อนนำไปใช้เชิงนโยบาย</div>`;
+  const NH=['ไม่ระบุประเด็น','บริหารจัดการกองทุน'],all=Object.entries(m),hs=all.filter(e=>!NH.includes(e[0])),ta=hs.reduce((s,e)=>s+e[1].a,0);
+  const g=hs.sort((x,y)=>y[1].a-x[1].a||y[1].n-x[1].n),top=g.slice(0,10),mx=Math.max(top.length?top[0][1].a:1,1),pc=v=>f1(ta?v/ta*100:0);
+  const s3=top.slice(0,3).reduce((s,e)=>s+e[1].a,0),nh=all.filter(e=>NH.includes(e[0])),tn=hs.reduce((s,e)=>s+e[1].n,0);
+  const byN=[...hs].sort((x,y)=>y[1].n-x[1].n)[0];
+  /* แต่ละพื้นที่อนุมัติโครงการเรื่องอะไรมากที่สุด */
+  const byD=!!S.sp,key=f=>byD?f.a:f.p,areas=[...new Set(FS.map(key))].sort((x,y)=>x.localeCompare(y,'th'));
+  const ar=areas.map(k=>{const P=FS.filter(f=>key(f)==k).flatMap(f=>PJ[f.c]||[]);const gi={},gt={};
+    P.forEach(p=>{const z=gOf(p[1]);if(!NH.includes(z)){gi[z]=(gi[z]||0)+p[6]}const t=p[2]||'ไม่ระบุ';gt[t]=(gt[t]||0)+p[6]});
+    const ti=Object.entries(gi).sort((x,y)=>y[1]-x[1])[0],tt=Object.entries(gt).sort((x,y)=>y[1]-x[1])[0],ap=P.reduce((s,p)=>s+p[6],0),hi=Object.values(gi).reduce((s,v)=>s+v,0);
+    return{k,n:P.length,ap,ti,tt,tip:ti&&hi?ti[1]/hi*100:0,ttp:tt&&ap?tt[1]/ap*100:0}}).filter(r=>r.n).sort((x,y)=>y.ap-x.ap);
+  return `<div class="ins"><b>สรุป:</b> โครงการที่อนุมัติแล้ว ${fm(tn)} โครงการ งบอนุมัติ ${fm(ta)} บาท · ประเด็นที่อนุมัติงบมากที่สุดคือ <b>${esc(top[0][0])}</b> ${fm(top[0][1].a)} บาท (${pc(top[0][1].a)}%)${byN&&byN[0]!=top[0][0]?' · ประเด็นที่มีจำนวนโครงการมากที่สุดคือ <b>'+esc(byN[0])+'</b> ('+fm(byN[1].n)+' โครงการ)':''}${top.length>2?' · 3 อันดับแรกรวมกัน '+pc(s3)+'%':''}</div>
+  <div class="scroll" style="border:0"><table><tr><th>#</th><th>กลุ่มประเด็นปัญหาสุขภาพ</th><th style="width:28%">สัดส่วนงบอนุมัติ</th><th class="n">งบอนุมัติ (บาท)</th><th class="n">ร้อยละ</th><th class="n">โครงการ</th><th class="n">ใช้ไปแล้ว (บาท)</th></tr>`+top.map(([k,v],j)=>`<tr><td>${j+1}</td><td style="white-space:normal"><b>${esc(k)}</b> <span class="sub" title="รวมจากชื่อประเด็นที่กองทุนพิมพ์ ${v.L.size} แบบ">(${v.L.size})</span></td><td><div class="meter" style="height:14px;margin:0"><i style="width:${v.a/mx*100}%;background:var(--pri)"></i></div></td><td class="n"><b>${fm(v.a)}</b></td><td class="n">${pc(v.a)}%</td><td class="n">${fm(v.n)}</td><td class="n sub">${fm(v.s)}</td></tr>`).join('')+`</table></div>
+  ${nh.length?`<div class="note">ไม่นับเป็นประเด็นสุขภาพ: ${nh.map(([k,v])=>esc(k)+' '+fm(v.n)+' โครงการ '+fm(v.a)+' บาท').join(' · ')}</div>`:''}
+  ${ar.length>1?`<h3 style="margin:18px 0 8px;font-size:15px">แต่ละ${byD?'อำเภอ':'จังหวัด'}อนุมัติโครงการเรื่องอะไรมากที่สุด</h3>
+  <div class="scroll" style="border:0"><table><tr><th>${byD?'อำเภอ':'จังหวัด'}</th><th class="n">โครงการ</th><th class="n">งบอนุมัติ (บาท)</th><th>ประเด็นสุขภาพอันดับ 1</th><th>ประเภทโครงการอันดับ 1 (ข้อ 10)</th></tr>`+ar.map(r=>`<tr><td><b>${esc(r.k)}</b></td><td class="n">${fm(r.n)}</td><td class="n">${fm(r.ap)}</td><td style="white-space:normal">${r.ti?esc(r.ti[0])+' <span class="sub">'+f1(r.tip)+'%</span>':'—'}</td><td>${r.tt?esc(r.tt[0])+' <span class="sub">'+f1(r.ttp)+'%</span>':'—'}</td></tr>`).join('')+`</table></div>`:''}
+  <div class="note">วิเคราะห์จากโครงการที่ได้รับอนุมัติแล้ว (บางโครงการอาจยังไม่ได้ใช้เงิน) · จัดกลุ่มจากชื่อประเด็นที่แต่ละกองทุนพิมพ์เอง โดยจับคำสำคัญรวมชื่อที่ใกล้เคียงกัน ตัวเลขในวงเล็บ = จำนวนชื่อประเด็นที่รวมเข้ากลุ่ม · ควรตรวจสอบก่อนนำไปใช้เชิงนโยบาย</div>`;
 }
 function barTable(ps,ix,lab){
   const m={};ps.forEach(p=>{const k=p[ix]||'ไม่ระบุ';m[k]=m[k]||{n:0,a:0,s:0};m[k].n++;m[k].a+=p[6];m[k].s+=p[7]});
-  const g=Object.entries(m).sort((x,y)=>(x[0]=='ไม่ระบุ')-(y[0]=='ไม่ระบุ')||y[1].s-x[1].s||y[1].a-x[1].a),ts=g.reduce((s,e)=>s+e[1].s,0);
+  const g=Object.entries(m).sort((x,y)=>(x[0]=='ไม่ระบุ')-(y[0]=='ไม่ระบุ')||y[1].a-x[1].a||y[1].n-x[1].n),ta=g.reduce((s,e)=>s+e[1].a,0),tn=g.reduce((s,e)=>s+e[1].n,0);
   if(!g.length)return '<div class="sub">ยังไม่มีโครงการที่ได้รับอนุมัติ</div>';
-  const mx=Math.max(g[0][1].s,1);
-  return `<div style="font-size:16px;margin-bottom:10px">ใช้เงินไปรวม <b>${fm(ts)} บาท</b>${ts?' · มากที่สุดคือ <b>'+esc(g[0][0])+'</b> ('+f1(g[0][1].s/ts*100)+'%)':''}</div>
-  <div class="scroll" style="border:0"><table><tr><th>${lab}</th><th style="width:40%">สัดส่วนเงินที่ใช้ไป</th><th class="n">ใช้ไป (บาท)</th><th class="n">ร้อยละ</th><th class="n">โครงการ</th></tr>`+g.map(([k,v])=>`<tr><td style="white-space:normal"><b>${esc(k)}</b></td><td><div class="meter" style="height:14px;margin:0"><i style="width:${v.s/mx*100}%;background:var(--pri)"></i></div></td><td class="n">${fm(v.s)}</td><td class="n"><b>${f1(ts?v.s/ts*100:0)}%</b></td><td class="n">${v.n}</td></tr>`).join('')+`</table></div>`;
+  const mx=Math.max(g[0][1].a,1);
+  return `<div class="ins">อนุมัติแล้ว <b>${fm(tn)} โครงการ</b> งบอนุมัติรวม <b>${fm(ta)} บาท</b>${ta?' · มากที่สุดคือ <b>'+esc(g[0][0])+'</b> ('+f1(g[0][1].a/ta*100)+'% ของงบอนุมัติ, '+fm(g[0][1].n)+' โครงการ)':''}</div>
+  <div class="scroll" style="border:0"><table><tr><th>${lab}</th><th style="width:36%">สัดส่วนงบอนุมัติ</th><th class="n">งบอนุมัติ (บาท)</th><th class="n">ร้อยละ</th><th class="n">โครงการ</th><th class="n">ใช้ไปแล้ว (บาท)</th></tr>`+g.map(([k,v])=>`<tr><td style="white-space:normal"><b>${esc(k)}</b></td><td><div class="meter" style="height:14px;margin:0"><i style="width:${v.a/mx*100}%;background:var(--pri)"></i></div></td><td class="n"><b>${fm(v.a)}</b></td><td class="n">${f1(ta?v.a/ta*100:0)}%</td><td class="n">${fm(v.n)}</td><td class="n sub">${fm(v.s)}</td></tr>`).join('')+`</table></div>`;
 }
 const LV={ok:'--ok',warn:'--warn',bad:'--bad',g0:'--gr'};
 const kh=(ic,t,sub)=>`<div class="kh"><span class="ic">${ic}</span><div><h3>${t}</h3>${sub?`<div class="kchip">${sub}</div>`:''}</div></div>`;
@@ -236,48 +252,24 @@ function cards(){
   const al=FS.filter(f=>f.s70=='ได้รับจัดสรร'),cap=al.reduce((s,f)=>s+(f.cap||0),0),rf=al.filter(f=>f.rcv>0),rc=al.reduce((s,f)=>s+(f.rcv||0),0);
   const PS=FS.flatMap(f=>PJ[f.c]||[]),pf=FS.filter(f=>PJ[f.c]).length,ap=PS.reduce((s,p)=>s+p[6],0),sp=PS.reduce((s,p)=>s+p[7],0),np=PS.length;
   const up=den?UF.length/den*100:null,mp=uin?usp/uin*100:null;
+  const kp=(t,v,sub)=>`<div class="dx-stat"><span>${t}</span><b>${v}</b>${sub?`<small>${sub}</small>`:''}</div>`;
   $('cards').innerHTML=`
-  <div class="card hero" style="border-top:5px solid var(${LV[lb]})">
-   <div class="hmain">
-    ${kh('🎯','ปีงบฯ 70 · กองทุนจ่ายเงินได้ ≥ 70%',sub)}
-    <div class="hnum"><span class="dot ${lb}"></span>${b.r==null?'รอข้อมูล':f1(b.r)+'<small>%</small>'}<span class="tag ${lb}" style="font-size:13px;margin-left:10px">${LT[lb]}</span></div>
-    ${meter(b.r,null,lb)}
-    <div class="kv">
-     <div><span>กองทุนที่จ่ายได้ ≥ 70%</span><b>${b.t?fm(b.p)+' / '+fm(b.t):'—'}</b> <span class="sub">แห่ง</span></div>
-     ${allm?'':`<div><span>เทียบ${S.v=='month'?'เดือน':'ไตรมาส'}ก่อน</span>${arrow(dv)}</div>`}
-     <div><span>เทียบผลปีงบฯ 69</span>${arrow(d69)}</div>
-    </div>
-    ${b.r==null?'<div class="sub" style="margin-top:8px">ยังไม่มีข้อมูลรายจ่ายของ'+(S.v=='month'?'เดือน':'ไตรมาส')+'นี้ (อัปเดตทุกเดือน)</div>':''}
-   </div>
-   <div class="h69">
-    <div class="sub" style="font-weight:600">ปีงบฯ 69 · กองทุนจ่ายเงินได้ ≥ 70%</div>
-    <div class="n69"><span class="dot ${la}" style="width:11px;height:11px"></span>${a.r==null?'—':a.r.toFixed(2)+'%'}</div>
-    ${meter(a.r,null,la)}
-    <div class="row"><span>จำนวนกองทุน</span><b>${fm(a.p)} / ${fm(a.t)} แห่ง</b></div>
-    <div class="row"><span>สถานะ</span><span class="tag ${la}">${LT[la]}</span></div>
-    <div class="sub" style="font-size:12px;margin-top:4px">ผลสรุปทั้งปีงบฯ${sc?'':' · KPI ทั้งเขตตรึงที่ 572/685'}</div>
-   </div>
-  </div>
-  <div class="card kc">${kh('💰','ปีงบฯ 70 · การใช้เงินกองทุนทั้งหมด',sub)}
-   <div class="kbig">${fm(usp)}<small> บาท</small></div>
-   <div class="row"><span>ใช้ไปจากรายรับรวม ${fm(uin)} บาท</span><b>${f1(mp)}%</b></div>${bar(mp)}
-   <div class="row" style="margin-top:10px"><span>กองทุนที่ใช้เงินแล้ว</span><b>${fm(UF.length)} / ${fm(den)} แห่ง</b></div>
-   <div class="row"><span>คิดเป็นร้อยละของกองทุนทั้งหมด</span><b>${f1(up)}%</b></div>${bar(up)}
-   ${PNL.length?`<div class="note">⚠ มี ${PNL.length} แห่งที่ข้อมูลยังไม่อัปเดต (${PNL.map(esc).join(', ')}) กำลังตรวจสอบ · ยังนับรวมในฐาน ${fm(den)} แห่ง</div>`:''}</div>
-  <div class="card kc" data-k="alloc">${kh('🏦','ปีงบฯ 70 · การจัดสรรจาก สปสช.',sc?'ทั้งเขต':esc(scl))}
-   <div class="kbig">${fm(rc)}<small> บาท</small></div>
-   <div class="row"><span>ได้รับแล้ว จากเพดาน ${fm(cap)} บาท</span><b>${f1(cap?rc/cap*100:null)}%</b></div>${bar(cap?rc/cap*100:0,'var(--ok)')}
-   <div class="row" style="margin-top:10px"><span>กองทุนที่ได้รับเงินโอนแล้ว</span><b>${fm(rf.length)} / ${fm(al.length)} แห่ง</b></div>
-   <div class="row"><span>ไม่ได้รับจัดสรร</span><b>${fm(FS.filter(f=>f.s70=='ไม่ได้รับจัดสรร').length)} แห่ง</b></div>
-   <div class="row"><span>กองทุนที่เข้าร่วมทั้งหมด</span><b>${fm(FS.length)} แห่ง</b></div></div>
-  <div class="card kc">${kh('📋','ปีงบฯ 70 · โครงการที่ได้รับอนุมัติ (สะสม)',sc?'ทั้งเขต':esc(scl))}
-   <div class="kbig">${fm(np)}<small> โครงการ</small></div>
-   <div class="row"><span>ใช้ไปแล้ว ${fm(sp)} จากงบอนุมัติ ${fm(ap)} บาท</span><b>${f1(ap?sp/ap*100:null)}%</b></div>${bar(ap?sp/ap*100:0,'var(--ok)')}
-   <div class="row" style="margin-top:10px"><span>กองทุนที่มีโครงการ</span><b>${fm(pf)} แห่ง</b></div>
-   <div class="row"><span>คงเหลือจากงบอนุมัติ</span><b>${fm(ap-sp)} บาท</b></div></div>
-`;
-  $('t10').innerHTML=barTable(PS,2,'ประเภทโครงการ (ข้อ 10)');$('g10').innerHTML=g10(PS);$('g10h').textContent='วิเคราะห์ 10 อันดับประเด็นปัญหาสุขภาพที่ใช้เงินมากที่สุด (รวมประเด็นที่ใกล้เคียงกัน)'+(sc?'':' · '+scl);
-  $('t10h').textContent='ใช้เงินไปกับโครงการประเภทไหนมากที่สุด (ข้อ 10) · เรียงจากมากไปน้อย'+(sc?'':' · '+scl);
+  <div class="card ov3" style="border-top:5px solid var(${LV[lb]})">${kh('🎯','KPI ปีงบฯ 70 · กองทุนจ่ายเงินได้ ≥ 70%',sub)}
+   <div class="obig"><span class="dot ${lb}"></span>${b.r==null?'รอข้อมูล':f1(b.r)+'<small>%</small>'}<span class="tag ${lb}">${LT[lb]}</span></div>
+   ${meter(b.r,T70,lb)}<div class="ocap">เป้าหมาย ${T70}% ของกองทุน (เส้นขีด)</div>
+   <div class="ostats">${kp('กองทุนที่ผ่าน',b.t?fm(b.p)+' / '+fm(b.t):'—','แห่ง')}${kp('เทียบปีงบฯ 69',arrow(d69),'ปี 69 = '+(a.r==null?'—':a.r.toFixed(2)+'%')+' ('+fm(a.p)+'/'+fm(a.t)+')')}${allm?'':kp('เทียบ'+(S.v=='month'?'เดือน':'ไตรมาส')+'ก่อน',arrow(dv))}</div>
+   ${b.r==null?'<div class="ocap">ยังไม่มีข้อมูลรายจ่ายของ'+(S.v=='month'?'เดือน':'ไตรมาส')+'นี้</div>':''}</div>
+  <div class="card ov3" style="border-top:5px solid var(--pri)">${kh('💰','การใช้เงินกองทุน ปีงบฯ 70',sub)}
+   <div class="obig">${fm(usp)}<small> บาท</small></div>
+   ${bar(mp)}<div class="ocap">ใช้ไป <b>${f1(mp)}%</b> ของรายรับรวม ${fm(uin)} บาท</div>
+   <div class="ostats">${kp('กองทุนที่ใช้เงินแล้ว',fm(UF.length)+' / '+fm(den),f1(up)+'% ของกองทุน')}${kp('ยังไม่ได้ใช้เงิน',fm(Math.max(0,den-UF.length)),'แห่ง')}</div>
+   ${PNL.length?`<div class="ocap">⚠ ${PNL.length} แห่งข้อมูลยังไม่อัปเดต (${PNL.map(esc).join(', ')})</div>`:''}</div>
+  <div class="card ov3" data-k="alloc" style="border-top:5px solid var(--ok)">${kh('🏦','เงินจัดสรรจาก สปสช. ปีงบฯ 70',sc?'ทั้งเขต':esc(scl))}
+   <div class="obig">${fm(rc)}<small> บาท</small></div>
+   ${bar(cap?rc/cap*100:0,'var(--ok)')}<div class="ocap">โอนแล้ว <b>${f1(cap?rc/cap*100:null)}%</b> ของเพดาน ${fm(cap)} บาท</div>
+   <div class="ostats">${kp('กองทุนที่ได้รับโอนแล้ว',fm(rf.length)+' / '+fm(al.length),'ของกองทุนที่ได้รับจัดสรร')}${kp('ไม่ได้รับจัดสรร',fm(FS.filter(f=>f.s70=='ไม่ได้รับจัดสรร').length),'จาก '+fm(FS.length)+' แห่ง')}</div></div>
+`;  $('t10').innerHTML=barTable(PS,2,'ประเภทโครงการ (ข้อ 10)');$('g10').innerHTML=g10(PS,FS);$('g10h').textContent='10 อันดับประเด็นปัญหาสุขภาพที่นำมาทำโครงการมากที่สุด (ตามงบที่อนุมัติ · รวมประเด็นที่ใกล้เคียงกัน)'+(sc?'':' · '+scl);
+  $('t10h').textContent='อนุมัติโครงการประเภทไหนมากที่สุด (ข้อ 10) · เรียงตามงบที่อนุมัติ มาก → น้อย'+(sc?'':' · '+scl);
   $('lgd').innerHTML='<span class="dot ok"></span>เขียว = ผ่านเกณฑ์ &nbsp; <span class="dot warn"></span>เหลือง = ใกล้เกณฑ์ &nbsp; <span class="dot bad"></span>แดง = ต่ำกว่าเกณฑ์ &nbsp; <span class="dot g0"></span>รอข้อมูล';
 }
 function strip(){
@@ -314,7 +306,8 @@ function aTable(el,lab,gs,flOf,lblOf,rank,per){
   $(el).innerHTML=h+'<tbody>'+R2.map(([x,j])=>aRow(lblOf(x.g),x.s,0,rank?j:undefined)).join('')+'</tbody><tfoot>'+aRow('รวม'+(isRegion()?'ทั้งเขต':' '+esc(scopeLabel())),aStat(inScope),1,rank?0:undefined)+'</tfoot>';
 }
 function prov(){
-  const gs=[...new Set(F.filter(inScope).map(f=>f.p))].sort((x,y)=>x.localeCompare(y,'th'));
+  const up=g=>{const v=aStat(f=>inScope(f)&&f.p==g).up;return v==null?-1:v};
+  const gs=[...new Set(F.filter(inScope).map(f=>f.p))].sort((x,y)=>up(y)-up(x)||x.localeCompare(y,'th'));
   aTable('pv','จังหวัด',gs,g=>f=>inScope(f)&&f.p==g,g=>'<b>'+esc(g)+'</b>');
 }
 function dist(){
@@ -434,9 +427,9 @@ function all(){cards();strip();prov();dist();rk();table();trf();gqn()}
 function initFold(){let st={};try{st=JSON.parse(localStorage.getItem('fold')||'{}')}catch(e){}
   document.querySelectorAll('[data-pg]').forEach(pg=>{[...pg.querySelectorAll(':scope > h2')].forEach((h,j)=>{
     const sib=[];let n=h.nextElementSibling;while(n&&n.tagName!='H2'){sib.push(n);n=n.nextElementSibling}
-    if(!sib.some(e=>e.querySelector&&(e.tagName=='TABLE'||e.querySelector('table'))))return;
+    if(!sib.length)return;
     const key=pg.dataset.pg+'-'+j,set=off=>{h.classList.toggle('off',off);sib.forEach(e=>e.style.display=off?'none':'')};
-    h.classList.add('fold');h.title='คลิกเพื่อซ่อน/แสดงตาราง';set(!!st[key]);
+    h.classList.add('fold');h.title='คลิกเพื่อซ่อน/แสดง';set(!!st[key]);
     h.onclick=()=>{const off=!h.classList.contains('off');set(off);st[key]=off?1:0;try{localStorage.setItem('fold',JSON.stringify(st))}catch(e){}}})})}
 initFold();
 function showPg(n){$('vw').style.display=$('pp').style.display=(n==4?'none':'');document.querySelectorAll('[data-pg]').forEach(e=>e.classList.toggle('on',e.dataset.pg==n));$('nav').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.p==n))}
@@ -508,7 +501,8 @@ function trf(){
   <div class="row"><span>ได้รับโอนแล้ว</span><b>${fm(got.length)} กองทุน (${f1(AL.length?got.length/AL.length*100:0)}%)</b></div><div class="row"><span>ยังไม่ได้รับโอน</span><b>${fm(pend)} กองทุน</b></div><div class="row"><span>ไม่ได้รับจัดสรร</span><b>${fm(NA.length)} กองทุน</b></div></div>
   <div class="card"><h3>เงินจาก สปสช. เทียบเพดาน${sf}</h3><div class="big">${f1(pc)}<span class="sub">% ของเพดาน</span></div>${meter(pc,100,'ok')}
   <div class="row"><span>เพดานเงินจัดสรรรวม</span><b>${fm(cap)} บาท</b></div><div class="row"><span>ได้รับโอนแล้ว</span><b>${fm(rc)} บาท</b></div><div class="row"><span>คงเหลือในเพดาน</span><b>${fm(cap-rc)} บาท</b></div></div>
-  <div class="card"><h3>ความคืบหน้าการโอนรายกองทุน${sf}</h3><div class="big">${fm(got.length)}<span class="sub"> / ${fm(AL.length)} กองทุนได้รับเงินจัดสรรแล้ว</span></div>${meter(AL.length?got.length/AL.length*100:0,100,'ok')}
+  <div class="card"><h3>สถานะการโอนเงิน สปสช.${sf}</h3><div class="big">${fm(got.length)}<span class="sub"> / ${fm(AL.length)} กองทุนได้รับเงินจัดสรรแล้ว</span></div>${meter(AL.length?got.length/AL.length*100:0,100,'ok')}
+  <div class="row" style="background:var(--okb);border-radius:8px;padding:6px 10px;margin:6px 0"><span>💰 สปสช. โอนแล้วรวม</span><b style="white-space:nowrap">${fm(rc)} บาท</b></div>
   <div class="row"><span><span class="dot ok"></span>ได้รับครบ 100% ของเพดาน</span><b>${fm(b100)} กองทุน</b></div>
   <div class="row"><span><span class="dot ok" style="opacity:.55"></span>ได้รับแล้ว 70–99%</span><b>${fm(b70)} กองทุน</b></div>
   <div class="row"><span><span class="dot warn"></span>ได้รับแล้วต่ำกว่า 70%</span><b>${fm(blo)} กองทุน</b></div>
