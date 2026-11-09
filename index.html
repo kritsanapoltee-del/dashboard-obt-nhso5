@@ -124,9 +124,9 @@ th{position:sticky;top:0;background:var(--grb);cursor:pointer;user-select:none}t
 <div data-pg="4"><h2>การโอนเงินจัดสรรจาก สปสช. ปีงบฯ 70</h2>
 <div class="note" id="trn"></div>
 <div class="grid" id="trc"></div>
-<h2>แยกตามวันที่โอนเงิน</h2><div class="scroll"><table id="trp"></table></div>
-<h2>แยกตามเดือน</h2><div class="scroll"><table id="trm"></table></div>
 <h2>แยกตามไตรมาส</h2><div class="scroll"><table id="trq"></table></div>
+<h2>แยกตามเดือน</h2><div class="scroll"><table id="trm"></table></div>
+<h2>แยกตามวันที่โอนเงิน</h2><div class="scroll"><table id="trp"></table></div>
 <h2 id="tah"></h2><div class="scroll"><table id="tra"></table></div>
 <h2>รายกองทุน</h2>
 <div class="bar"><input type="search" id="tq" placeholder="ค้นหาชื่อกองทุน / อำเภอ / รหัสกองทุน"><select id="ts"><option value="">ทุกสถานะ</option><option value="got">ได้รับโอนแล้ว</option><option value="pend">ได้รับจัดสรรแต่ยังไม่ได้รับโอน</option><option value="na">ไม่ได้รับจัดสรร</option></select><span class="sub" id="tcn"></span><span class="grow"></span><button class="btn fill" id="exT">ส่งออก Excel (การโอนเงิน)</button></div>
@@ -436,17 +436,18 @@ function tR(f){const a=TR.v[f.c]||[],g=DI.map(i=>+a[i]||0),mg=Array(12).fill(0);
 const tSt=r=>r.f.s70!='ได้รับจัดสรร'?'na':r.sum>0?'got':'pend';
 function tAgg(R,ix){let n=0,a=0;R.forEach(r=>{const s=ix.reduce((x,i)=>x+r.g[i],0);if(s>0)n++;a+=s});return{n,a}}
 function tPer(R,cap,gs){let cum=0;return gs.map(([l,s,ix])=>{const g=tAgg(R,ix);cum+=g.a;return{l,s,n:g.n,a:g.a,p:cap?g.a/cap*100:null,cum,cp:cap?cum/cap*100:null,rem:cap-cum}})}
-function tTbl(el,rows,h1,h2){
+function tTbl(el,rows,h1){
   const mx=Math.max(1,...rows.map(r=>r.a));
-  $(el).innerHTML='<tr><th>'+h1+'</th><th>'+h2+'</th><th class="n">กองทุนที่ได้รับโอน</th><th class="n">เงินที่โอน (บาท)</th><th class="n">% ของเพดาน</th><th class="n">โอนสะสม (บาท)</th><th class="n">สะสม % ของเพดาน</th><th class="n">เหลือในเพดาน (บาท)</th><th>สัดส่วน</th></tr>'+
-  rows.map(r=>`<tr><td><b>${esc(r.l)}</b></td><td>${esc(r.s)}</td><td class="n">${fm(r.n)}</td><td class="n">${fm(r.a)}</td><td class="n">${f1(r.p)}</td><td class="n">${fm(r.cum)}</td><td class="n">${f1(r.cp)}</td><td class="n">${fm(r.rem)}</td><td class="b"><div class="meter" style="height:12px;margin:0"><i class="ok" style="width:${r.a/mx*100}%"></i></div></td></tr>`).join('')}
-const tRow=(r,a,b)=>({[a]:r.l,[b]:r.s,'กองทุนที่ได้รับโอน':r.n,'เงินที่โอน (บาท)':r.a,'% ของเพดาน':r.p==null?null:+r.p.toFixed(2),'โอนสะสม (บาท)':r.cum,'เหลือในเพดาน (บาท)':r.rem});
+  $(el).innerHTML='<tr><th>'+h1+'</th><th class="n">กองทุนที่ได้รับโอน</th><th class="n">เงินที่โอน (บาท)</th><th class="n">% ของเพดาน</th><th class="n">โอนสะสม (บาท)</th><th class="n">สะสม % ของเพดาน</th><th class="n">เหลือในเพดาน (บาท)</th><th>สัดส่วน</th></tr>'+
+  rows.map(r=>`<tr><td><b>${esc(r.l)}</b></td><td class="n">${fm(r.n)}</td><td class="n">${fm(r.a)}</td><td class="n">${f1(r.p)}</td><td class="n">${fm(r.cum)}</td><td class="n">${f1(r.cp)}</td><td class="n">${fm(r.rem)}</td><td class="b"><div class="meter" style="height:12px;margin:0"><i class="ok" style="width:${r.a/mx*100}%"></i></div></td></tr>`).join('')}
+const tRow=(r,a)=>({[a]:r.l,'กองทุนที่ได้รับโอน':r.n,'เงินที่โอน (บาท)':r.a,'% ของเพดาน':r.p==null?null:+r.p.toFixed(2),'โอนสะสม (บาท)':r.cum,'เหลือในเพดาน (บาท)':r.rem});
 const tPct=r=>r.f.cap?r.sum/r.f.cap*100:0;
 const tVal=(r,k)=>k=='cap'?(r.f.cap||0):k=='sum'?r.sum:k=='pct'?tPct(r):k=='rem'?(r.f.cap||0)-r.sum:k=='st'?tSt(r):k=='last'?(r.last==null?-1:r.last):/^m\d+$/.test(k)?r.mg[+k.slice(1)]:r.f[k];
 function trf(){
   const FS=F.filter(inScope),R=FS.map(tR),AL=R.filter(r=>r.f.s70=='ได้รับจัดสรร'),NA=R.filter(r=>r.f.s70=='ไม่ได้รับจัดสรร');
   const cap=AL.reduce((s,r)=>s+(r.f.cap||0),0),rc=AL.reduce((s,r)=>s+r.sum,0),got=AL.filter(r=>r.sum>0),pend=AL.length-got.length;
   const scl=scopeLabel(),sf=scl?' · '+esc(scl):'',pc=cap?rc/cap*100:0;
+  const fp=r=>r.f.cap?r.sum/r.f.cap*100:0,b100=AL.filter(r=>r.sum>0&&fp(r)>=99.995).length,b70=AL.filter(r=>r.sum>0&&fp(r)>=70&&fp(r)<99.995).length,b0=AL.filter(r=>!(r.sum>0)).length,blo=AL.length-b100-b70-b0;
   const lastI=[...DI].reverse().find(i=>AL.some(r=>r.g[i]>0)),nI=DI.filter(i=>AL.some(r=>r.g[i]>0)).length;
   const miss=DI.filter(i=>tmon(i)==null&&AL.some(r=>r.g[i]>0));
   $('trn').textContent=rc?'ข้อมูลการโอนอ้างอิงชีต "การโอนเงินจัดสรร สปสช." ณ '+ASOF+' · มีการโอน '+nI+' ครั้ง ('+(nI?TR.d[DI.find(i=>AL.some(r=>r.g[i]>0))].l+' – '+TR.d[lastI].l:'')+')'+(miss.length?' · '+miss.map(i=>TR.d[i].l).join(', ')+' ยังไม่ระบุเดือน จึงไม่ถูกนับในตารางรายเดือน/ไตรมาส':''):'ณ '+ASOF+' ในชีต "การโอนเงินจัดสรร สปสช." ยังไม่มียอดโอน · ตารางจะแสดงตัวเลขเมื่อมีการบันทึกยอดโอนในคอลัมน์วันที่โอนเงิน';
@@ -456,21 +457,25 @@ function trf(){
   <div class="row"><span>ได้รับโอนแล้ว</span><b>${fm(got.length)} กองทุน (${f1(AL.length?got.length/AL.length*100:0)}%)</b></div><div class="row"><span>ยังไม่ได้รับโอน</span><b>${fm(pend)} กองทุน</b></div><div class="row"><span>ไม่ได้รับจัดสรร</span><b>${fm(NA.length)} กองทุน</b></div></div>
   <div class="card"><h3>เงินจาก สปสช. เทียบเพดาน${sf}</h3><div class="big">${f1(pc)}<span class="sub">% ของเพดาน</span></div>${meter(pc,100,'ok')}
   <div class="row"><span>เพดานเงินจัดสรรรวม</span><b>${fm(cap)} บาท</b></div><div class="row"><span>ได้รับโอนแล้ว</span><b>${fm(rc)} บาท</b></div><div class="row"><span>คงเหลือในเพดาน</span><b>${fm(cap-rc)} บาท</b></div></div>
-  <div class="card"><h3>ความคืบหน้าการโอน</h3><div class="big">${nI}<span class="sub"> ครั้งที่มีการโอนเงิน</span></div>
-  <div class="row"><span>โอนครั้งล่าสุด</span><b>${lastI==null?'—':TR.d[lastI].l}</b></div><div class="row"><span>ยอดโอนครั้งล่าสุด</span><b>${lastI==null?'—':fm(AL.reduce((s,r)=>s+r.g[lastI],0))+' บาท'}</b></div><div class="row"><span>กองทุนที่ได้รับในครั้งล่าสุด</span><b>${lastI==null?'—':fm(AL.filter(r=>r.g[lastI]>0).length)+' กองทุน'}</b></div></div>`;
+  <div class="card"><h3>ความคืบหน้าการโอนรายกองทุน${sf}</h3><div class="big">${fm(b100)}<span class="sub"> / ${fm(AL.length)} กองทุนได้รับครบ 100%</span></div>${meter(AL.length?b100/AL.length*100:0,100,'ok')}
+  <div class="row"><span><span class="dot ok"></span>ได้รับครบ 100% ของเพดาน</span><b>${fm(b100)} กองทุน</b></div>
+  <div class="row"><span><span class="dot ok" style="opacity:.55"></span>ได้รับแล้ว 70–99%</span><b>${fm(b70)} กองทุน</b></div>
+  <div class="row"><span><span class="dot warn"></span>ได้รับแล้วต่ำกว่า 70%</span><b>${fm(blo)} กองทุน</b></div>
+  <div class="row"><span><span class="dot bad"></span>ยังไม่ได้รับเงินโอน</span><b>${fm(b0)} กองทุน</b></div>
+  <div class="sub" style="font-size:12px;margin-top:4px">ได้รับแล้ว ≥ 70% (รวมครบ 100%) = ${fm(b100+b70)} กองทุน · ${f1(AL.length?(b100+b70)/AL.length*100:0)}%</div></div>`;
   const dd=i=>TR.d[i].l.split(' ')[0],dl=ix=>{const z=ix.filter(i=>AL.some(r=>r.g[i]>0));return z.length?'โอน '+z.length+' ครั้ง ('+(TR.d[z[0]].l.includes('งวด')?z.map(i=>TR.d[i].l).join(', '):'วันที่ '+z.map(dd).join(', '))+')':'—'};
   const gI=DI.map(i=>[TR.d[i].l,tlab(i)+(tq_(i)==null?'':' · ไตรมาส '+(tq_(i)+1)),[i]]);
   const gM=MN.map((m,k)=>{const ix=DI.filter(i=>tmon(i)==k);return[m+' '+String(MY[k]).slice(2),dl(ix),ix]}),
-        gQ=[0,1,2,3].map(q=>{const ix=DI.filter(i=>tq_(i)==q);return['ไตรมาส '+(q+1),MN[q*3]+'–'+MN[q*3+2]+' · '+dl(ix),ix]});
+        gQ=[0,1,2,3].map(q=>{const ix=DI.filter(i=>tq_(i)==q);return['ไตรมาส '+(q+1)+' ('+MN[q*3]+'–'+MN[q*3+2]+')','',ix]});
   const pI=tPer(AL,cap,gI),pM=tPer(AL,cap,gM),pQ=tPer(AL,cap,gQ);
-  tTbl('trp',pI,'วันที่โอนเงิน','เดือน / ไตรมาส');tTbl('trm',pM,'เดือน','การโอนในเดือนนี้');tTbl('trq',pQ,'ไตรมาส','เดือน · การโอน');
+  tTbl('trq',pQ,'ไตรมาส');tTbl('trm',pM,'เดือน');tTbl('trp',pI,'วันที่โอนเงิน');
   const byD=!!S.sp,key=f=>byD?f.a:f.p,ks=[...new Set(R.map(r=>key(r.f)))].sort((x,y)=>x.localeCompare(y,'th'));
   $('tah').textContent='แยกตาม'+(byD?'อำเภอ (จ.'+S.sp+')':'จังหวัด');
   const aRows=ks.map(k=>{const a=R.filter(r=>key(r.f)==k),al=a.filter(r=>r.f.s70=='ได้รับจัดสรร'),c=al.reduce((s,r)=>s+(r.f.cap||0),0),m=al.reduce((s,r)=>s+r.sum,0),g=al.filter(r=>r.sum>0).length,gi=TMO.map(m=>al.reduce((s,r)=>s+r.mg[m],0));return{k,n:a.length,al:al.length,na:a.length-al.length,g,pd:al.length-g,c,m,p:c?m/c*100:0,rem:c-m,gi}});
   $('tra').innerHTML='<tr><th>'+(byD?'อำเภอ':'จังหวัด')+'</th><th class="n">กองทุน</th><th class="n">ได้รับจัดสรร</th><th class="n">ไม่ได้รับจัดสรร</th><th class="n">ได้รับโอนแล้ว</th><th class="n">ยังไม่ได้รับโอน</th><th class="n">เพดาน (บาท)</th><th class="n">โอนแล้ว (บาท)</th><th class="n">% ของเพดาน</th><th class="n">คงเหลือในเพดาน (บาท)</th>'+TMO.map(m=>'<th class="n">โอน '+MN[m]+' '+String(MY[m]).slice(2)+' (บาท)</th>').join('')+'</tr>'+
   aRows.map(r=>`<tr><td>${esc(r.k)}</td><td class="n">${fm(r.n)}</td><td class="n">${fm(r.al)}</td><td class="n">${fm(r.na)}</td><td class="n">${fm(r.g)}</td><td class="n">${fm(r.pd)}</td><td class="n">${fm(r.c)}</td><td class="n">${fm(r.m)}</td><td class="n">${f1(r.p)}</td><td class="n">${fm(r.rem)}</td>${r.gi.map(x=>'<td class="n">'+fm(x)+'</td>').join('')}</tr>`).join('');
   TX={sum:[{'ตัวชี้วัด':'กองทุนทั้งหมด','ค่า':FS.length},{'ตัวชี้วัด':'ได้รับจัดสรร','ค่า':AL.length},{'ตัวชี้วัด':'ไม่ได้รับจัดสรร','ค่า':NA.length},{'ตัวชี้วัด':'ได้รับโอนแล้ว (กอง)','ค่า':got.length},{'ตัวชี้วัด':'ยังไม่ได้รับโอน (กอง)','ค่า':pend},{'ตัวชี้วัด':'เพดานรวม (บาท)','ค่า':cap},{'ตัวชี้วัด':'โอนแล้ว (บาท)','ค่า':rc},{'ตัวชี้วัด':'% ของเพดาน','ค่า':+pc.toFixed(2)},{'ตัวชี้วัด':'คงเหลือในเพดาน (บาท)','ค่า':cap-rc},{'ตัวชี้วัด':'พื้นที่','ค่า':scl||'ทั้งเขต'},{'ตัวชี้วัด':'ข้อมูล ณ','ค่า':ASOF}],
-    per:pI.map(r=>tRow(r,'วันที่โอนเงิน','เดือน/ไตรมาส')),mon:pM.map(r=>tRow(r,'เดือน','การโอน')),qt:pQ.map(r=>tRow(r,'ไตรมาส','เดือน/การโอน')),
+    per:pI.map(r=>tRow(r,'วันที่โอนเงิน')),mon:pM.map(r=>tRow(r,'เดือน')),qt:pQ.map(r=>tRow(r,'ไตรมาส')),
     area:aRows.map(r=>({[byD?'อำเภอ':'จังหวัด']:r.k,'กองทุน':r.n,'ได้รับจัดสรร':r.al,'ไม่ได้รับจัดสรร':r.na,'ได้รับโอนแล้ว':r.g,'ยังไม่ได้รับโอน':r.pd,'เพดาน (บาท)':r.c,'โอนแล้ว (บาท)':r.m,'% ของเพดาน':+r.p.toFixed(2),'คงเหลือในเพดาน (บาท)':r.rem,...Object.fromEntries(TMO.map((m,j)=>['โอน '+MN[m]+' '+String(MY[m]).slice(2)+' (บาท)',r.gi[j]]))})),funds:[]};
   tFunds(R);
 }
