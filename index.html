@@ -124,7 +124,7 @@ th{position:sticky;top:0;background:var(--grb);cursor:pointer;user-select:none}t
 <div data-pg="4"><h2>การโอนเงินจัดสรรจาก สปสช. ปีงบฯ 70</h2>
 <div class="note" id="trn"></div>
 <div class="grid" id="trc"></div>
-<h2>แยกตามงวดการโอน</h2><div class="scroll"><table id="trp"></table></div>
+<h2>แยกตามวันที่โอนเงิน</h2><div class="scroll"><table id="trp"></table></div>
 <h2>แยกตามเดือน</h2><div class="scroll"><table id="trm"></table></div>
 <h2>แยกตามไตรมาส</h2><div class="scroll"><table id="trq"></table></div>
 <h2 id="tah"></h2><div class="scroll"><table id="tra"></table></div>
@@ -132,7 +132,7 @@ th{position:sticky;top:0;background:var(--grb);cursor:pointer;user-select:none}t
 <div class="bar"><input type="search" id="tq" placeholder="ค้นหาชื่อกองทุน / อำเภอ / รหัสกองทุน"><select id="ts"><option value="">ทุกสถานะ</option><option value="got">ได้รับโอนแล้ว</option><option value="pend">ได้รับจัดสรรแต่ยังไม่ได้รับโอน</option><option value="na">ไม่ได้รับจัดสรร</option></select><span class="sub" id="tcn"></span><span class="grow"></span><button class="btn fill" id="exT">ส่งออก Excel (การโอนเงิน)</button></div>
 <div class="scroll"><table id="trt"></table></div>
 <div class="pg"><button class="btn" id="tpv">ก่อนหน้า</button><span id="tpi" class="sub"></span><button class="btn" id="tnx">ถัดไป</button></div>
-<p class="note">นิยาม: "ได้รับโอนแล้ว" = กองทุนที่ได้รับจัดสรรและมียอดโอนจริง &gt; 0 ในงวดใดงวดหนึ่ง · "ยังไม่ได้รับโอน" = ได้รับจัดสรร (มีเพดาน) แต่ยังไม่มียอดโอน · "ไม่ได้รับจัดสรร" = สถานะจัดสรรปี 70 ไม่ได้รับ (เพดาน 0) · เงินที่ สปสช. โอนมาแล้วคิดเป็นร้อยละของเพดานเงินจัดสรร และคงเหลือในเพดาน = เพดาน − ยอดที่โอนแล้ว · เดือน/ไตรมาสอ้างอิงเดือนที่ระบุเหนือคอลัมน์งวดในชีต "การโอนเงินจัดสรร สปสช." · ใช้ตัวกรองจังหวัด/อำเภอด้านบนได้</p></div>
+<p class="note">นิยาม: "ได้รับโอนแล้ว" = กองทุนที่ได้รับจัดสรรและมียอดโอนจริง &gt; 0 อย่างน้อย 1 ครั้ง (ตามคอลัมน์วันที่โอนเงินในชีต) · "ยังไม่ได้รับโอน" = ได้รับจัดสรร (มีเพดาน) แต่ยังไม่มียอดโอน · "ไม่ได้รับจัดสรร" = สถานะจัดสรรปี 70 ไม่ได้รับ (เพดาน 0) · เงินที่ สปสช. โอนมาแล้วคิดเป็นร้อยละของเพดานเงินจัดสรร และคงเหลือในเพดาน = เพดาน − ยอดที่โอนแล้ว · เดือน/ไตรมาสอ้างอิงวันที่ในหัวคอลัมน์ "วันที่โอนเงิน" ในชีต "การโอนเงินจัดสรร สปสช." · ใช้ตัวกรองจังหวัด/อำเภอด้านบนได้</p></div>
 </div>
 <div class="ov" id="ov"><div class="dlg" id="dl"></div></div>
 
@@ -428,10 +428,11 @@ let gqT=0;$('gq').oninput=e=>{const v=e.target.value;clearTimeout(gqT);gqT=setTi
 
 const TR=D.TR;
 const TS={q:'',st:'',k:'def',d:1,pg:0};let TX={};
-const tq_=i=>TR.mon[i]==null?null:Math.floor(TR.mon[i]/3);
-const tlab=i=>TR.mon[i]==null?'ยังไม่ระบุเดือน':MN[TR.mon[i]]+' '+String(MY[TR.mon[i]]).slice(2);
+const ND=TR.d.length,DI=TR.d.map((_,i)=>i),tmon=i=>TR.d[i].mon,tq_=i=>tmon(i)==null?null:Math.floor(tmon(i)/3);
+const tlab=i=>tmon(i)==null?'ยังไม่ระบุเดือน':MN[tmon(i)]+' '+String(MY[tmon(i)]).slice(2);
+const TMO=[...new Set(DI.map(tmon).filter(m=>m!=null))].sort((a,b)=>a-b);/* เดือนที่มีคอลัมน์วันที่โอน */
 const TSL={got:'ได้รับโอนแล้ว',pend:'ยังไม่ได้รับโอน',na:'ไม่ได้รับจัดสรร'},TSC={got:'ok',pend:'warn',na:'g0'};
-function tR(f){const a=TR.v[f.c]||[],g=[0,1,2,3,4].map(i=>+a[i]||0);return{f,g,sum:g.reduce((s,x)=>s+x,0)}}
+function tR(f){const a=TR.v[f.c]||[],g=DI.map(i=>+a[i]||0),mg=Array(12).fill(0);g.forEach((x,i)=>{if(tmon(i)!=null)mg[tmon(i)]+=x});const li=[...DI].reverse().find(i=>g[i]>0);return{f,g,mg,sum:g.reduce((s,x)=>s+x,0),last:li==null?null:li}}
 const tSt=r=>r.f.s70!='ได้รับจัดสรร'?'na':r.sum>0?'got':'pend';
 function tAgg(R,ix){let n=0,a=0;R.forEach(r=>{const s=ix.reduce((x,i)=>x+r.g[i],0);if(s>0)n++;a+=s});return{n,a}}
 function tPer(R,cap,gs){let cum=0;return gs.map(([l,s,ix])=>{const g=tAgg(R,ix);cum+=g.a;return{l,s,n:g.n,a:g.a,p:cap?g.a/cap*100:null,cum,cp:cap?cum/cap*100:null,rem:cap-cum}})}
@@ -441,35 +442,36 @@ function tTbl(el,rows,h1,h2){
   rows.map(r=>`<tr><td><b>${esc(r.l)}</b></td><td>${esc(r.s)}</td><td class="n">${fm(r.n)}</td><td class="n">${fm(r.a)}</td><td class="n">${f1(r.p)}</td><td class="n">${fm(r.cum)}</td><td class="n">${f1(r.cp)}</td><td class="n">${fm(r.rem)}</td><td class="b"><div class="meter" style="height:12px;margin:0"><i class="ok" style="width:${r.a/mx*100}%"></i></div></td></tr>`).join('')}
 const tRow=(r,a,b)=>({[a]:r.l,[b]:r.s,'กองทุนที่ได้รับโอน':r.n,'เงินที่โอน (บาท)':r.a,'% ของเพดาน':r.p==null?null:+r.p.toFixed(2),'โอนสะสม (บาท)':r.cum,'เหลือในเพดาน (บาท)':r.rem});
 const tPct=r=>r.f.cap?r.sum/r.f.cap*100:0;
-const tVal=(r,k)=>k=='cap'?(r.f.cap||0):k=='sum'?r.sum:k=='pct'?tPct(r):k=='rem'?(r.f.cap||0)-r.sum:k=='st'?tSt(r):/^g\d$/.test(k)?r.g[+k[1]]:r.f[k];
+const tVal=(r,k)=>k=='cap'?(r.f.cap||0):k=='sum'?r.sum:k=='pct'?tPct(r):k=='rem'?(r.f.cap||0)-r.sum:k=='st'?tSt(r):k=='last'?(r.last==null?-1:r.last):/^m\d+$/.test(k)?r.mg[+k.slice(1)]:r.f[k];
 function trf(){
   const FS=F.filter(inScope),R=FS.map(tR),AL=R.filter(r=>r.f.s70=='ได้รับจัดสรร'),NA=R.filter(r=>r.f.s70=='ไม่ได้รับจัดสรร');
   const cap=AL.reduce((s,r)=>s+(r.f.cap||0),0),rc=AL.reduce((s,r)=>s+r.sum,0),got=AL.filter(r=>r.sum>0),pend=AL.length-got.length;
   const scl=scopeLabel(),sf=scl?' · '+esc(scl):'',pc=cap?rc/cap*100:0;
-  const lastI=[4,3,2,1,0].find(i=>AL.some(r=>r.g[i]>0)),nI=[0,1,2,3,4].filter(i=>AL.some(r=>r.g[i]>0)).length;
-  const miss=[0,1,2,3,4].filter(i=>TR.mon[i]==null&&AL.some(r=>r.g[i]>0));
-  $('trn').textContent=rc?'ข้อมูลการโอนอ้างอิงชีต "การโอนเงินจัดสรร สปสช." ณ '+ASOF+(miss.length?' · งวดที่ '+miss.map(i=>i+1).join(', ')+' มียอดโอนแต่ยังไม่ระบุเดือนในชีต จึงไม่ถูกนับในตารางรายเดือน/ไตรมาส':''):'ณ '+ASOF+' ในชีต "การโอนเงินจัดสรร สปสช." ยังไม่มียอดโอนในงวดใด (งวดที่ 1–5 ว่าง) · ตารางจะแสดงตัวเลขเมื่อมีการบันทึกยอดโอนและอัปเดตแดชบอร์ด';
+  const lastI=[...DI].reverse().find(i=>AL.some(r=>r.g[i]>0)),nI=DI.filter(i=>AL.some(r=>r.g[i]>0)).length;
+  const miss=DI.filter(i=>tmon(i)==null&&AL.some(r=>r.g[i]>0));
+  $('trn').textContent=rc?'ข้อมูลการโอนอ้างอิงชีต "การโอนเงินจัดสรร สปสช." ณ '+ASOF+' · มีการโอน '+nI+' ครั้ง ('+(nI?TR.d[DI.find(i=>AL.some(r=>r.g[i]>0))].l+' – '+TR.d[lastI].l:'')+')'+(miss.length?' · '+miss.map(i=>TR.d[i].l).join(', ')+' ยังไม่ระบุเดือน จึงไม่ถูกนับในตารางรายเดือน/ไตรมาส':''):'ณ '+ASOF+' ในชีต "การโอนเงินจัดสรร สปสช." ยังไม่มียอดโอน · ตารางจะแสดงตัวเลขเมื่อมีการบันทึกยอดโอนในคอลัมน์วันที่โอนเงิน';
   $('trc').innerHTML=`<div class="card"><h3>จำนวนกองทุน${sf}</h3><div class="big">${fm(FS.length)}<span class="sub"> กองทุน</span></div>
   <div class="row"><span>ได้รับจัดสรรปี 70</span><b>${fm(AL.length)} กองทุน</b></div><div class="row"><span>ไม่ได้รับจัดสรร</span><b>${fm(NA.length)} กองทุน</b></div></div>
   <div class="card"><h3>สถานะการได้รับเงินโอน${sf}</h3><div class="big">${fm(got.length)}<span class="sub"> / ${fm(AL.length)} กองทุนที่ได้รับจัดสรร</span></div>${meter(AL.length?got.length/AL.length*100:0,100,'ok')}
   <div class="row"><span>ได้รับโอนแล้ว</span><b>${fm(got.length)} กองทุน (${f1(AL.length?got.length/AL.length*100:0)}%)</b></div><div class="row"><span>ยังไม่ได้รับโอน</span><b>${fm(pend)} กองทุน</b></div><div class="row"><span>ไม่ได้รับจัดสรร</span><b>${fm(NA.length)} กองทุน</b></div></div>
   <div class="card"><h3>เงินจาก สปสช. เทียบเพดาน${sf}</h3><div class="big">${f1(pc)}<span class="sub">% ของเพดาน</span></div>${meter(pc,100,'ok')}
   <div class="row"><span>เพดานเงินจัดสรรรวม</span><b>${fm(cap)} บาท</b></div><div class="row"><span>ได้รับโอนแล้ว</span><b>${fm(rc)} บาท</b></div><div class="row"><span>คงเหลือในเพดาน</span><b>${fm(cap-rc)} บาท</b></div></div>
-  <div class="card"><h3>ความคืบหน้าการโอน</h3><div class="big">${nI}<span class="sub"> / 5 งวดที่มียอดโอน</span></div>
-  <div class="row"><span>งวดล่าสุด</span><b>${lastI==null?'—':'งวดที่ '+(lastI+1)+' ('+tlab(lastI)+')'}</b></div><div class="row"><span>โอนในงวดล่าสุด</span><b>${lastI==null?'—':fm(AL.reduce((s,r)=>s+r.g[lastI],0))+' บาท'}</b></div></div>`;
-  const gI=[0,1,2,3,4].map(i=>['งวดที่ '+(i+1),tlab(i)+(tq_(i)==null?'':' · ไตรมาส '+(tq_(i)+1)),[i]]);
-  const gM=MN.map((m,k)=>{const ix=[0,1,2,3,4].filter(i=>TR.mon[i]==k);return[m+' '+String(MY[k]).slice(2),ix.length?ix.map(i=>'งวดที่ '+(i+1)).join(', '):'—',ix]}),
-        gQ=[0,1,2,3].map(q=>{const ix=[0,1,2,3,4].filter(i=>tq_(i)==q);return['ไตรมาส '+(q+1),MN[q*3]+'–'+MN[q*3+2]+(ix.length?' · '+ix.map(i=>'งวดที่ '+(i+1)).join(', '):''),ix]});
+  <div class="card"><h3>ความคืบหน้าการโอน</h3><div class="big">${nI}<span class="sub"> ครั้งที่มีการโอนเงิน</span></div>
+  <div class="row"><span>โอนครั้งล่าสุด</span><b>${lastI==null?'—':TR.d[lastI].l}</b></div><div class="row"><span>ยอดโอนครั้งล่าสุด</span><b>${lastI==null?'—':fm(AL.reduce((s,r)=>s+r.g[lastI],0))+' บาท'}</b></div><div class="row"><span>กองทุนที่ได้รับในครั้งล่าสุด</span><b>${lastI==null?'—':fm(AL.filter(r=>r.g[lastI]>0).length)+' กองทุน'}</b></div></div>`;
+  const dd=i=>TR.d[i].l.split(' ')[0],dl=ix=>{const z=ix.filter(i=>AL.some(r=>r.g[i]>0));return z.length?'โอน '+z.length+' ครั้ง ('+(TR.d[z[0]].l.includes('งวด')?z.map(i=>TR.d[i].l).join(', '):'วันที่ '+z.map(dd).join(', '))+')':'—'};
+  const gI=DI.map(i=>[TR.d[i].l,tlab(i)+(tq_(i)==null?'':' · ไตรมาส '+(tq_(i)+1)),[i]]);
+  const gM=MN.map((m,k)=>{const ix=DI.filter(i=>tmon(i)==k);return[m+' '+String(MY[k]).slice(2),dl(ix),ix]}),
+        gQ=[0,1,2,3].map(q=>{const ix=DI.filter(i=>tq_(i)==q);return['ไตรมาส '+(q+1),MN[q*3]+'–'+MN[q*3+2]+' · '+dl(ix),ix]});
   const pI=tPer(AL,cap,gI),pM=tPer(AL,cap,gM),pQ=tPer(AL,cap,gQ);
-  tTbl('trp',pI,'งวด','เดือนที่โอน / ไตรมาส');tTbl('trm',pM,'เดือน','งวดที่โอนในเดือนนี้');tTbl('trq',pQ,'ไตรมาส','เดือน · งวด');
+  tTbl('trp',pI,'วันที่โอนเงิน','เดือน / ไตรมาส');tTbl('trm',pM,'เดือน','การโอนในเดือนนี้');tTbl('trq',pQ,'ไตรมาส','เดือน · การโอน');
   const byD=!!S.sp,key=f=>byD?f.a:f.p,ks=[...new Set(R.map(r=>key(r.f)))].sort((x,y)=>x.localeCompare(y,'th'));
   $('tah').textContent='แยกตาม'+(byD?'อำเภอ (จ.'+S.sp+')':'จังหวัด');
-  const aRows=ks.map(k=>{const a=R.filter(r=>key(r.f)==k),al=a.filter(r=>r.f.s70=='ได้รับจัดสรร'),c=al.reduce((s,r)=>s+(r.f.cap||0),0),m=al.reduce((s,r)=>s+r.sum,0),g=al.filter(r=>r.sum>0).length,gi=[0,1,2,3,4].map(i=>al.reduce((s,r)=>s+r.g[i],0));return{k,n:a.length,al:al.length,na:a.length-al.length,g,pd:al.length-g,c,m,p:c?m/c*100:0,rem:c-m,gi}});
-  $('tra').innerHTML='<tr><th>'+(byD?'อำเภอ':'จังหวัด')+'</th><th class="n">กองทุน</th><th class="n">ได้รับจัดสรร</th><th class="n">ไม่ได้รับจัดสรร</th><th class="n">ได้รับโอนแล้ว</th><th class="n">ยังไม่ได้รับโอน</th><th class="n">เพดาน (บาท)</th><th class="n">โอนแล้ว (บาท)</th><th class="n">% ของเพดาน</th><th class="n">คงเหลือในเพดาน (บาท)</th>'+[1,2,3,4,5].map(i=>'<th class="n">งวด '+i+' (บาท)</th>').join('')+'</tr>'+
+  const aRows=ks.map(k=>{const a=R.filter(r=>key(r.f)==k),al=a.filter(r=>r.f.s70=='ได้รับจัดสรร'),c=al.reduce((s,r)=>s+(r.f.cap||0),0),m=al.reduce((s,r)=>s+r.sum,0),g=al.filter(r=>r.sum>0).length,gi=TMO.map(m=>al.reduce((s,r)=>s+r.mg[m],0));return{k,n:a.length,al:al.length,na:a.length-al.length,g,pd:al.length-g,c,m,p:c?m/c*100:0,rem:c-m,gi}});
+  $('tra').innerHTML='<tr><th>'+(byD?'อำเภอ':'จังหวัด')+'</th><th class="n">กองทุน</th><th class="n">ได้รับจัดสรร</th><th class="n">ไม่ได้รับจัดสรร</th><th class="n">ได้รับโอนแล้ว</th><th class="n">ยังไม่ได้รับโอน</th><th class="n">เพดาน (บาท)</th><th class="n">โอนแล้ว (บาท)</th><th class="n">% ของเพดาน</th><th class="n">คงเหลือในเพดาน (บาท)</th>'+TMO.map(m=>'<th class="n">โอน '+MN[m]+' '+String(MY[m]).slice(2)+' (บาท)</th>').join('')+'</tr>'+
   aRows.map(r=>`<tr><td>${esc(r.k)}</td><td class="n">${fm(r.n)}</td><td class="n">${fm(r.al)}</td><td class="n">${fm(r.na)}</td><td class="n">${fm(r.g)}</td><td class="n">${fm(r.pd)}</td><td class="n">${fm(r.c)}</td><td class="n">${fm(r.m)}</td><td class="n">${f1(r.p)}</td><td class="n">${fm(r.rem)}</td>${r.gi.map(x=>'<td class="n">'+fm(x)+'</td>').join('')}</tr>`).join('');
   TX={sum:[{'ตัวชี้วัด':'กองทุนทั้งหมด','ค่า':FS.length},{'ตัวชี้วัด':'ได้รับจัดสรร','ค่า':AL.length},{'ตัวชี้วัด':'ไม่ได้รับจัดสรร','ค่า':NA.length},{'ตัวชี้วัด':'ได้รับโอนแล้ว (กอง)','ค่า':got.length},{'ตัวชี้วัด':'ยังไม่ได้รับโอน (กอง)','ค่า':pend},{'ตัวชี้วัด':'เพดานรวม (บาท)','ค่า':cap},{'ตัวชี้วัด':'โอนแล้ว (บาท)','ค่า':rc},{'ตัวชี้วัด':'% ของเพดาน','ค่า':+pc.toFixed(2)},{'ตัวชี้วัด':'คงเหลือในเพดาน (บาท)','ค่า':cap-rc},{'ตัวชี้วัด':'พื้นที่','ค่า':scl||'ทั้งเขต'},{'ตัวชี้วัด':'ข้อมูล ณ','ค่า':ASOF}],
-    per:pI.map(r=>tRow(r,'งวด','เดือน/ไตรมาส')),mon:pM.map(r=>tRow(r,'เดือน','งวด')),qt:pQ.map(r=>tRow(r,'ไตรมาส','เดือน/งวด')),
-    area:aRows.map(r=>({[byD?'อำเภอ':'จังหวัด']:r.k,'กองทุน':r.n,'ได้รับจัดสรร':r.al,'ไม่ได้รับจัดสรร':r.na,'ได้รับโอนแล้ว':r.g,'ยังไม่ได้รับโอน':r.pd,'เพดาน (บาท)':r.c,'โอนแล้ว (บาท)':r.m,'% ของเพดาน':+r.p.toFixed(2),'คงเหลือในเพดาน (บาท)':r.rem})),funds:[]};
+    per:pI.map(r=>tRow(r,'วันที่โอนเงิน','เดือน/ไตรมาส')),mon:pM.map(r=>tRow(r,'เดือน','การโอน')),qt:pQ.map(r=>tRow(r,'ไตรมาส','เดือน/การโอน')),
+    area:aRows.map(r=>({[byD?'อำเภอ':'จังหวัด']:r.k,'กองทุน':r.n,'ได้รับจัดสรร':r.al,'ไม่ได้รับจัดสรร':r.na,'ได้รับโอนแล้ว':r.g,'ยังไม่ได้รับโอน':r.pd,'เพดาน (บาท)':r.c,'โอนแล้ว (บาท)':r.m,'% ของเพดาน':+r.p.toFixed(2),'คงเหลือในเพดาน (บาท)':r.rem,...Object.fromEntries(TMO.map((m,j)=>['โอน '+MN[m]+' '+String(MY[m]).slice(2)+' (บาท)',r.gi[j]]))})),funds:[]};
   tFunds(R);
 }
 function tFunds(R){
@@ -477,11 +479,11 @@ function tFunds(R){
   let r=R.filter(x=>(!TS.st||tSt(x)==TS.st)&&(!q||(x.f.n+x.f.a+x.f.c).toLowerCase().includes(q)));
   if(TS.k=='def')r.sort((x,y)=>x.f.p.localeCompare(y.f.p,'th')||x.f.a.localeCompare(y.f.a,'th')||x.f.n.localeCompare(y.f.n,'th'));
   else r.sort((x,y)=>{const a=tVal(x,TS.k),b=tVal(y,TS.k);return(typeof a=='string'?a.localeCompare(b,'th'):a-b)*TS.d});
-  TX.funds=r.map(x=>({'จังหวัด':x.f.p,'อำเภอ':x.f.a,'รหัสกองทุน':x.f.c,'กองทุน':x.f.n,'สถานะ':TSL[tSt(x)],'เพดาน (บาท)':x.f.cap||0,'งวดที่ 1':x.g[0],'งวดที่ 2':x.g[1],'งวดที่ 3':x.g[2],'งวดที่ 4':x.g[3],'งวดที่ 5':x.g[4],'รวมโอนแล้ว (บาท)':x.sum,'% ของเพดาน':+tPct(x).toFixed(2),'คงเหลือในเพดาน (บาท)':(x.f.cap||0)-x.sum}));
+  TX.funds=r.map(x=>({'จังหวัด':x.f.p,'อำเภอ':x.f.a,'รหัสกองทุน':x.f.c,'กองทุน':x.f.n,'สถานะ':TSL[tSt(x)],'เพดาน (บาท)':x.f.cap||0,...Object.fromEntries(DI.map(i=>['โอน '+TR.d[i].l,x.g[i]])),'โอนล่าสุด':x.last==null?'':TR.d[x.last].l,'รวมโอนแล้ว (บาท)':x.sum,'% ของเพดาน':+tPct(x).toFixed(2),'คงเหลือในเพดาน (บาท)':(x.f.cap||0)-x.sum}));
   const per=20,pages=Math.max(1,Math.ceil(r.length/per));TS.pg=Math.min(TS.pg,pages-1);
-  const C=[['p','จังหวัด'],['a','อำเภอ'],['c','รหัส'],['n','กองทุน'],['st','สถานะ'],['cap','เพดาน (บาท)',1],['g0','งวด 1',1],['g1','งวด 2',1],['g2','งวด 3',1],['g3','งวด 4',1],['g4','งวด 5',1],['sum','โอนแล้ว (บาท)',1],['pct','% ของเพดาน',1],['rem','คงเหลือ (บาท)',1]];
+  const C=[['p','จังหวัด'],['a','อำเภอ'],['c','รหัส'],['n','กองทุน'],['st','สถานะ'],['cap','เพดาน (บาท)',1],...TMO.map(m=>['m'+m,'โอน '+MN[m]+' '+String(MY[m]).slice(2),1]),['last','โอนล่าสุด',1],['sum','โอนแล้ว (บาท)',1],['pct','% ของเพดาน',1],['rem','คงเหลือ (บาท)',1]];
   $('trt').innerHTML='<tr>'+C.map(c=>`<th class="${c[2]?'n':''}" data-k="${c[0]}">${c[1]}${TS.k==c[0]?(TS.d>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>'+
-  r.slice(TS.pg*per,TS.pg*per+per).map(x=>{const s=tSt(x);return`<tr><td>${esc(x.f.p)}</td><td>${esc(x.f.a)}</td><td>${esc(x.f.c)}</td><td>${esc(x.f.n.replace('กองทุนสุขภาพตำบล',''))}</td><td><span class="tag ${TSC[s]}">${TSL[s]}</span></td><td class="n">${fm(x.f.cap)}</td>${x.g.map(v=>'<td class="n">'+(v?fm(v):'—')+'</td>').join('')}<td class="n">${fm(x.sum)}</td><td class="n">${f1(tPct(x))}</td><td class="n">${fm((x.f.cap||0)-x.sum)}</td></tr>`}).join('');
+  r.slice(TS.pg*per,TS.pg*per+per).map(x=>{const s=tSt(x);return`<tr><td>${esc(x.f.p)}</td><td>${esc(x.f.a)}</td><td>${esc(x.f.c)}</td><td>${esc(x.f.n.replace('กองทุนสุขภาพตำบล',''))}</td><td><span class="tag ${TSC[s]}">${TSL[s]}</span></td><td class="n">${fm(x.f.cap)}</td>${TMO.map(m=>'<td class="n">'+(x.mg[m]?fm(x.mg[m]):'—')+'</td>').join('')}<td class="n">${x.last==null?'—':TR.d[x.last].l}</td><td class="n">${fm(x.sum)}</td><td class="n">${f1(tPct(x))}</td><td class="n">${fm((x.f.cap||0)-x.sum)}</td></tr>`}).join('');
   $('tcn').textContent='แสดง '+fm(r.length)+' จาก '+fm(R.length)+' กองทุน';$('tpi').textContent='หน้า '+(TS.pg+1)+' / '+pages;
   $('trt').querySelectorAll('th[data-k]').forEach(e=>e.onclick=()=>{const k=e.dataset.k;TS.d=TS.k==k?-TS.d:1;TS.k=k;trf()});
 }
@@ -490,7 +492,7 @@ $('tpv').onclick=()=>{TS.pg=Math.max(0,TS.pg-1);trf()};$('tnx').onclick=()=>{TS.
 $('exT').onclick=async()=>{const dl=await getDl();
   if(!dl){alert('ไม่สามารถส่งออกไฟล์ในมุมมองนี้ได้ กรุณาเปิดแดชบอร์ดจาก claude.ai');return}
   const wb=XLSX.utils.book_new(),A=(n,r)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r),n);
-  A('สรุป',TX.sum);A('รายงวด',TX.per);A('รายเดือน',TX.mon);A('รายไตรมาส',TX.qt);A('รายพื้นที่',TX.area);A('รายกองทุน',TX.funds);
+  A('สรุป',TX.sum);A('รายวันที่โอน',TX.per);A('รายเดือน',TX.mon);A('รายไตรมาส',TX.qt);A('รายพื้นที่',TX.area);A('รายกองทุน',TX.funds);
   try{await dl.save({filename:'การโอนเงินจัดสรร_สปสช_กปท_เขต5.xlsx',data:XLSX.write(wb,{type:'array',bookType:'xlsx'})})}catch(e){if(e&&e.code!='declined')alert('บันทึกไฟล์ไม่สำเร็จ')}};
 
 
@@ -562,10 +564,20 @@ function parseCSV(s){if(s.charCodeAt(0)==0xFEFF)s=s.slice(1);const rows=[];let r
   if(c!==''||r.length){r.push(c);rows.push(r)}return rows}
 const NUM=v=>{if(v==null)return null;const s=String(v).replace(/[,%\s]/g,'');if(s==='')return null;const x=Number(s);return isNaN(x)?null:x};
 const TXT=v=>{const s=v==null?'':String(v).trim();return s===''?null:s};
+const TMS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+/* อ่านหัวคอลัมน์วันที่โอน เช่น 28/10/69, 28/10/2569, 2026-10-28, 28 ต.ค. 69 → {d,m(1-12),y(พ.ศ.)} */
+function DPARSE(v){const t=String(v==null?'':v).trim();let d,m,y,x;
+  if((x=t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2}|\d{4})$/))){d=+x[1];m=+x[2];y=+x[3]}
+  else if((x=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/))){y=+x[1];m=+x[2];d=+x[3]}
+  else if((x=t.match(/^(\d{1,2})\s*([ก-๙.]+)\s*(\d{2}|\d{4})$/))){d=+x[1];m=TMS.findIndex(k=>k.replace(/\./g,'')==x[2].replace(/\./g,''))+1;y=+x[3]}
+  else return null;
+  if(!(d>=1&&d<=31&&m>=1&&m<=12))return null;
+  if(y<100)y+=2500;else if(y<2400)y+=543;
+  return{d,m,y,key:y*10000+m*100+d}}
 function kind(rows){
   for(let i=0;i<Math.min(rows.length,6);i++){const h=rows[i].map(x=>String(x).trim());const has=k=>h.some(x=>x.startsWith(k));
     if(has('สถานะการจัดสรร 69'))return{k:'ov',h:i,H:h};
-    if(has('งวดที่ 1'))return{k:'tr',h:i,H:h};
+    if(has('งวดที่ 1')||(has('รหัสกองทุน')&&has('ได้รับเงินจัดสรรมาแล้ว')&&h.some(x=>DPARSE(x))))return{k:'tr',h:i,H:h};
     if(has('รหัสโครงการ'))return{k:'pj',h:i,H:h};
     if(has('สถานะการสมทบเงิน อปท.'))return{k:'lao',h:i,H:h};
     if(has('ยอดเงินคงเหลือยกมา'))return{k:'f69',h:i,H:h}}
@@ -576,10 +588,14 @@ function buildD(texts){
   const col=(K,name)=>{const i=K.H.findIndex(x=>x.startsWith(name));if(i<0)throw new Error('ไม่พบคอลัมน์ "'+name+'"');return i};
   const f69={};{const K=S.f69,c=col(K,'รหัสกองทุน'),a=col(K,'ยอดเงินคงเหลือยกมา'),b=col(K,'รวมรายรับ'),e=col(K,'รายจ่าย'),pc=K.H.findIndex(x=>x.startsWith('รายจ่าย (%)')),bl=col(K,'เงินคงเหลือ');
     K.rows.forEach(r=>{const code=TXT(r[c]);if(!code)return;const pct=NUM(r[pc]);if(pct==null)return;f69[code]={cy:NUM(r[a]),tot:NUM(r[b]),exp:NUM(r[e]),bal:NUM(r[bl]),pct}})}
-  const rcv={},TR={mon:[null,null,null,null,null],v:{}};{const K=S.tr,c=col(K,'รหัสกองทุน'),v=col(K,'ได้รับเงินจัดสรรมาแล้ว (บาท)'),MS=['ตุลาคม','พฤศจิกายน','ธันวาคม','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน'];
-    const ic=[1,2,3,4,5].map(k=>K.H.findIndex(x=>x.replace(/\s/g,'')=='งวดที่'+k));
-    TR.mon=ic.map(ci=>{if(ci<0)return null;const x=MS.indexOf(String(K.pre[ci]||'').trim());return x<0?null:x});
-    K.rows.forEach(r=>{const code=TXT(r[c]);if(!code)return;rcv[code]=NUM(r[v])||0;const g=ic.map(ci=>ci<0?0:(NUM(r[ci])||0));if(g.some(x=>x>0))TR.v[code]=g})}
+  /* TR.d = รายการวันที่โอน [{l:ป้าย, mon:ดัชนีเดือนปีงบ 0=ต.ค.}] · TR.v[รหัส] = ยอดโอนตามลำดับ TR.d */
+  const rcv={},TR={d:[],v:{}};{const K=S.tr,c=col(K,'รหัสกองทุน'),v=col(K,'ได้รับเงินจัดสรรมาแล้ว (บาท)'),MS=['ตุลาคม','พฤศจิกายน','ธันวาคม','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน'];
+    let cols=K.H.map((x,ci)=>({ci,p:DPARSE(x)})).filter(o=>o.p).sort((a,b)=>a.p.key-b.p.key)
+      .map(o=>({ci:o.ci,l:o.p.d+' '+TMS[o.p.m-1]+' '+String(o.p.y).slice(2),mon:(o.p.m+2)%12,key:o.p.key}));
+    if(!cols.length)cols=[1,2,3,4,5].map(k=>({ci:K.H.findIndex(x=>x.replace(/\s/g,'')=='งวดที่'+k),l:'งวดที่ '+k})).filter(o=>o.ci>=0)
+      .map(o=>{const x=MS.indexOf(String(K.pre[o.ci]||'').trim());return{...o,mon:x<0?null:x}});
+    TR.d=cols.map(o=>({l:o.l,mon:o.mon}));
+    K.rows.forEach(r=>{const code=TXT(r[c]);if(!code)return;rcv[code]=NUM(r[v])||0;const g=cols.map(o=>NUM(r[o.ci])||0);if(g.some(x=>x>0))TR.v[code]=g})}
   const lao={};{const K=S.lao,c=col(K,'รหัสกองทุน'),st=col(K,'สถานะการสมทบเงิน อปท.'),am=col(K,'จำนวนเงินที่สมทบ');K.rows.forEach(r=>{const code=TXT(r[c]);if(code)lao[code]=[TXT(r[st]),NUM(r[am])]})}
   const pj={};{const K=S.pj,c=col(K,'รหัสกองทุน'),n=col(K,'ชื่อโครงการ'),is=col(K,'ประเด็นปัญหาสุขภาพ'),ty=col(K,'ประเภทโครงการ'),og=col(K,'หน่วยงานที่ดำเนินการ'),tg=col(K,'กลุ่มเป้าหมาย'),pr=col(K,'งบประมาณที่เสนอ'),ap=col(K,'งบประมาณที่อนุมัติ'),sp=col(K,'งบประมาณที่ใช้ไป');
     K.rows.forEach(r=>{const code=TXT(r[c]);if(!code||!TXT(r[n]))return;(pj[code]=pj[code]||[]).push([r[n],TXT(r[is]),TXT(r[ty])||'ไม่ระบุ',TXT(r[og])||'',NUM(r[tg])||0,NUM(r[pr])||0,NUM(r[ap])||0,NUM(r[sp])||0])})}
