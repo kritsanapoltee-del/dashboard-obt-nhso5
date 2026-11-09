@@ -64,7 +64,8 @@ th{position:sticky;top:0;background:var(--grb);cursor:pointer;user-select:none}t
 .at thead .g1{background:color-mix(in srgb,var(--pri) 16%,var(--grb))}.at thead .g2{background:color-mix(in srgb,var(--warn) 18%,var(--grb))}.at thead .g3{background:color-mix(in srgb,var(--ok) 16%,var(--grb))}
 .at tbody tr:hover td{filter:brightness(.97)}.at tfoot th,.at tfoot td{background:var(--grb);font-weight:700;border-top:2px solid var(--bd);position:sticky;bottom:0}.at th.l{text-align:left}
 .at.cmp{font-size:13px}.at.cmp th,.at.cmp td{padding:6px 7px}.at.cmp thead th{white-space:normal}.at.cmp td.l,.at.cmp th.l{white-space:normal;min-width:110px}
-.mb{display:flex;align-items:center;gap:5px;min-width:96px}.mb .meter{flex:1;margin:0;height:8px}.mb b{min-width:44px;text-align:right}
+.mb{display:flex;align-items:center;gap:5px;min-width:96px}
+h2.fold{cursor:pointer;user-select:none}h2.fold::after{content:'  ▾ ซ่อน';font-size:12px;font-weight:500;color:var(--mu);margin-left:8px;padding:2px 8px;border:1px solid var(--bd);border-radius:99px}h2.fold.off::after{content:'  ▸ แสดงตาราง'}h2.fold:hover::after{color:var(--pri);border-color:var(--pri)}.mb .meter{flex:1;margin:0;height:8px}.mb b{min-width:44px;text-align:right}
 </style>
 </head>
 <body><div id="ld"></div>
@@ -159,7 +160,8 @@ const scopeLabel=()=>(S.sp||'')+(S.sa?' อ.'+S.sa:'')+(S.gq?(S.sp||S.sa?' · ':
 const p69=f=>f.x?f.x.pct:null;
 const p70=(f,i)=>{const r=i<0?f.t:(f.m&&f.m[i]);return r&&r[0]?r[1]/r[0]*100:null};
 const inBase=(f,y)=>{const s=y==69?f.s69:f.s70;return S.base=='all'?s!='ยังไม่เข้าร่วม':s=='ได้รับจัดสรร'};
-function calc(y,i,flt){let t=0,p=0;F.forEach(f=>{if(flt&&!flt(f)||!inBase(f,y))return;const v=y==69?p69(f):p70(f,i);if(v==null){if(y==69)t++;return}t++;if(v>=TH)p++});return{t,p,r:t?p/t*100:null}}
+/* ปี 70: ตัวหาร = กองทุนที่เข้าร่วมทั้งหมด (รวมกองทุนที่ไม่ได้รับจัดสรร) กองทุนที่ยังไม่มีข้อมูลรายจ่ายนับเป็นไม่ผ่าน · ถ้าช่วงเวลานั้นยังไม่มีข้อมูลเลยทั้งเขต = รอข้อมูล */
+function calc(y,i,flt){let t=0,p=0;if(y==70&&i>=0&&!F.some(f=>p70(f,i)!=null))return{t:0,p:0,r:null};F.forEach(f=>{if(flt&&!flt(f)||(y==70?f.s70=='ยังไม่เข้าร่วม':!inBase(f,y)))return;const v=y==69?p69(f):p70(f,i);if(v==null){t++;return}t++;if(v>=TH)p++});return{t,p,r:t?p/t*100:null}}
 const hasData=i=>F.some(f=>p70(f,i)!=null);
 let latest=-1;for(let i=11;i>=0;i--)if(hasData(i)){latest=i;break}
 S.m=-1;S.q=-1; /* ค่าเริ่มต้น = ทุกเดือน / ทุกไตรมาส (ดูทั้งหมด) */
@@ -373,7 +375,9 @@ function drill(c){
    <div class="row"><span>การเข้าร่วม LTC</span><b>${W(f.ltc)}</b></div>
    <div class="row"><span>ประชากร</span><b>${f.pop==null?'—':fm(f.pop)+' คน'}</b></div>
    <div class="row"><span>เพดานเงินจัดสรร</span><b>${fm(f.cap)} บ.</b></div>
-   <div class="row"><span>การสมทบเงิน อปท.</span><b>${lao!=null?fm(lao)+' บ.':W(f.lao&&f.lao[0])}</b></div>
+   <div class="row"><span>ได้รับเงินจัดสรร สปสช. แล้ว</span><b>${fm(f.rcv||0)} บ.${f.cap?' ('+f1((f.rcv||0)/f.cap*100)+'%)':''}</b></div>
+   <div class="row"><span>คงเหลือในเพดาน (ยังไม่ได้รับ)</span><b>${f.s70=='ได้รับจัดสรร'?fm(Math.max(0,(f.cap||0)-(f.rcv||0)))+' บ.':'— (ไม่ได้รับจัดสรร)'}</b></div>
+   <div class="row"><span>สมทบเงิน อปท. แล้ว</span><b>${lao!=null?fm(lao)+' บ.':'0 บ.'}${f.lao&&f.lao[0]?' <span class="sub">('+esc(f.lao[0])+')</span>':''}</b></div>
    <div class="row"><span>การอนุมัติแผนการเงิน</span><b>${W(f.fp)}</b></div>
    <div class="row"><span>การอนุมัติแผนสุขภาพชุมชน</span><b>${W(f.hp)}</b></div>
    <div class="row"><span>จำนวนโครงการที่อนุมัติ</span><b>${ps.length} โครงการ</b></div>
@@ -388,6 +392,15 @@ function sync(){$('vw').querySelectorAll('button').forEach(b=>b.classList.toggle
   $('pp').innerHTML=S.v=='month'?`<option value="-1" ${S.m<0?'selected':''}>ทุกเดือน (ดูทั้งหมด)</option>`+MN.map((m,i)=>`<option value="${i}" ${i==S.m?'selected':''}>${m} ${MY[i]}</option>`).join(''):`<option value="-1" ${S.q<0?'selected':''}>ทุกไตรมาส (ดูทั้งหมด)</option>`+[0,1,2,3].map(q=>`<option value="${q}" ${q==S.q?'selected':''}>ไตรมาส ${q+1}</option>`).join('')}
 function gqn(){$('gqn').textContent=S.gq?'พบ '+fm(F.filter(inScope).length)+' กองทุน':''}
 function all(){cards();strip();prov();dist();rk();table();trf();gqn()}
+/* ซ่อน/แสดงตาราง: คลิกหัวข้อ (h2) ที่มีตารางอยู่ใต้หัวข้อ · จำสถานะไว้ในเบราว์เซอร์ */
+function initFold(){let st={};try{st=JSON.parse(localStorage.getItem('fold')||'{}')}catch(e){}
+  document.querySelectorAll('[data-pg]').forEach(pg=>{[...pg.querySelectorAll(':scope > h2')].forEach((h,j)=>{
+    const sib=[];let n=h.nextElementSibling;while(n&&n.tagName!='H2'){sib.push(n);n=n.nextElementSibling}
+    if(!sib.some(e=>e.querySelector&&(e.tagName=='TABLE'||e.querySelector('table'))))return;
+    const key=pg.dataset.pg+'-'+j,set=off=>{h.classList.toggle('off',off);sib.forEach(e=>e.style.display=off?'none':'')};
+    h.classList.add('fold');h.title='คลิกเพื่อซ่อน/แสดงตาราง';set(!!st[key]);
+    h.onclick=()=>{const off=!h.classList.contains('off');set(off);st[key]=off?1:0;try{localStorage.setItem('fold',JSON.stringify(st))}catch(e){}}})})}
+initFold();
 function showPg(n){$('vw').style.display=$('pp').style.display=(n==4?'none':'');document.querySelectorAll('[data-pg]').forEach(e=>e.classList.toggle('on',e.dataset.pg==n));$('nav').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.p==n))}
 $('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>showPg(b.dataset.p));
 $('vw').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.v=b.dataset.v;sync();all()});
@@ -457,7 +470,7 @@ function trf(){
   <div class="row"><span>ได้รับโอนแล้ว</span><b>${fm(got.length)} กองทุน (${f1(AL.length?got.length/AL.length*100:0)}%)</b></div><div class="row"><span>ยังไม่ได้รับโอน</span><b>${fm(pend)} กองทุน</b></div><div class="row"><span>ไม่ได้รับจัดสรร</span><b>${fm(NA.length)} กองทุน</b></div></div>
   <div class="card"><h3>เงินจาก สปสช. เทียบเพดาน${sf}</h3><div class="big">${f1(pc)}<span class="sub">% ของเพดาน</span></div>${meter(pc,100,'ok')}
   <div class="row"><span>เพดานเงินจัดสรรรวม</span><b>${fm(cap)} บาท</b></div><div class="row"><span>ได้รับโอนแล้ว</span><b>${fm(rc)} บาท</b></div><div class="row"><span>คงเหลือในเพดาน</span><b>${fm(cap-rc)} บาท</b></div></div>
-  <div class="card"><h3>ความคืบหน้าการโอนรายกองทุน${sf}</h3><div class="big">${fm(b100)}<span class="sub"> / ${fm(AL.length)} กองทุนได้รับครบ 100%</span></div>${meter(AL.length?b100/AL.length*100:0,100,'ok')}
+  <div class="card"><h3>ความคืบหน้าการโอนรายกองทุน${sf}</h3><div class="big">${fm(got.length)}<span class="sub"> / ${fm(AL.length)} กองทุนได้รับเงินจัดสรรแล้ว</span></div>${meter(AL.length?got.length/AL.length*100:0,100,'ok')}
   <div class="row"><span><span class="dot ok"></span>ได้รับครบ 100% ของเพดาน</span><b>${fm(b100)} กองทุน</b></div>
   <div class="row"><span><span class="dot ok" style="opacity:.55"></span>ได้รับแล้ว 70–99%</span><b>${fm(b70)} กองทุน</b></div>
   <div class="row"><span><span class="dot warn"></span>ได้รับแล้วต่ำกว่า 70%</span><b>${fm(blo)} กองทุน</b></div>
