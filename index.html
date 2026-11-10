@@ -227,13 +227,16 @@ function g10(ps){
   ${nh.length?`<div class="note">ไม่นับเป็นประเด็นสุขภาพ: ${nh.map(([k,v])=>esc(k)+' '+fm(v.n)+' โครงการ '+fm(v.a)+' บาท').join(' · ')}</div>`:''}
   <div class="note">วิเคราะห์จากโครงการที่ได้รับอนุมัติแล้ว (บางโครงการอาจยังไม่ได้ใช้เงิน) · จัดกลุ่มจากชื่อประเด็นที่แต่ละกองทุนพิมพ์เอง โดยจับคำสำคัญรวมชื่อที่ใกล้เคียงกัน ตัวเลขในวงเล็บ = จำนวนชื่อประเด็นที่รวมเข้ากลุ่ม · ควรตรวจสอบก่อนนำไปใช้เชิงนโยบาย</div>`;
 }
+/* คำอธิบายประเภทโครงการตามประกาศฯ พ.ศ. 2567 ข้อ 10 */
+const D10={1:'สนับสนุนการจัดบริการสาธารณสุขของหน่วยบริการ สถานบริการ หรือหน่วยงานสาธารณสุข (เช่น อปท. รพ.สต. รพ. สสอ.)',2:'สนับสนุนกิจกรรมสร้างเสริมสุขภาพและป้องกันโรค ขององค์กร/กลุ่มประชาชน หรือหน่วยงานอื่น (เช่น อสม. ชมรม โรงเรียน)',3:'สนับสนุนศูนย์เด็กเล็ก ศูนย์พัฒนา/ฟื้นฟูคุณภาพชีวิตผู้สูงอายุและคนพิการในชุมชน',4:'ค่าบริหารจัดการกองทุน',5:'กรณีเกิดโรคระบาดหรือภัยพิบัติในพื้นที่',6:'ค่าตอบแทนผู้ช่วยเหลือดูแล (Caregiver) ผู้มีภาวะพึ่งพิง',7:'บริการตามมติคณะกรรมการ สปสช. (เช่น ผ้าอ้อมผู้ใหญ่ และชะลอไตเสื่อม)',8:'บริการพาหนะรับส่งผู้ทุพพลภาพไปรับบริการสาธารณสุข'};
+const d10=k=>{const m=String(k||'').match(/10\s*\(\s*([1-8])\s*\)/);return m?D10[m[1]]:''};
 function barTable(ps,ix,lab){
   const m={};ps.forEach(p=>{const k=p[ix]||'ไม่ระบุ';m[k]=m[k]||{n:0,a:0,s:0};m[k].n++;m[k].a+=p[6];m[k].s+=p[7]});
   const g=Object.entries(m).sort((x,y)=>(x[0]=='ไม่ระบุ')-(y[0]=='ไม่ระบุ')||y[1].a-x[1].a||y[1].n-x[1].n),ta=g.reduce((s,e)=>s+e[1].a,0),tn=g.reduce((s,e)=>s+e[1].n,0);
   if(!g.length)return '<div class="sub">ยังไม่มีโครงการที่ได้รับอนุมัติ</div>';
   const mx=Math.max(g[0][1].a,1);
   return `<div class="ins">อนุมัติแล้ว <b>${fm(tn)} โครงการ</b> งบอนุมัติรวม <b>${fm(ta)} บาท</b>${ta?' · มากที่สุดคือ <b>'+esc(g[0][0])+'</b> ('+f1(g[0][1].a/ta*100)+'% ของงบอนุมัติ, '+fm(g[0][1].n)+' โครงการ)':''}</div>
-  <div class="scroll" style="border:0"><table><tr><th>${lab}</th><th style="width:36%">สัดส่วนงบอนุมัติ</th><th class="n">งบอนุมัติ (บาท)</th><th class="n">ร้อยละ</th><th class="n">โครงการ</th><th class="n">ใช้ไปแล้ว (บาท)</th></tr>`+g.map(([k,v])=>`<tr><td style="white-space:normal"><b>${esc(k)}</b></td><td><div class="meter" style="height:14px;margin:0"><i style="width:${v.a/mx*100}%;background:var(--pri)"></i></div></td><td class="n"><b>${fm(v.a)}</b></td><td class="n">${f1(ta?v.a/ta*100:0)}%</td><td class="n">${fm(v.n)}</td><td class="n sub">${fm(v.s)}</td></tr>`).join('')+`</table></div>`;
+  <div class="scroll" style="border:0"><table><tr><th>${lab}</th><th style="width:24%">สัดส่วนงบอนุมัติ</th><th class="n">งบอนุมัติ (บาท)</th><th class="n">ร้อยละ</th><th class="n">โครงการ</th><th class="n">ใช้ไปแล้ว (บาท)</th></tr>`+g.map(([k,v])=>`<tr><td style="white-space:normal;min-width:240px;max-width:380px"><b>${esc(k)}</b>${ix==2&&d10(k)?`<div class="sub" style="font-size:12px;line-height:1.45">${esc(d10(k))}</div>`:''}</td><td><div class="meter" style="height:14px;margin:0"><i style="width:${v.a/mx*100}%;background:var(--pri)"></i></div></td><td class="n"><b>${fm(v.a)}</b></td><td class="n">${f1(ta?v.a/ta*100:0)}%</td><td class="n">${fm(v.n)}</td><td class="n sub">${fm(v.s)}</td></tr>`).join('')+`</table></div>`;
 }
 const LV={ok:'--ok',warn:'--warn',bad:'--bad',g0:'--gr'};
 const kh=(ic,t,sub)=>`<div class="kh"><span class="ic">${ic}</span><div><h3>${t}</h3>${sub?`<div class="kchip">${sub}</div>`:''}</div></div>`;
@@ -405,7 +408,7 @@ function drill(c){
   ${ps.length?`<div class="dx-stats">
     ${stat('โครงการที่อนุมัติ',ps.length+' โครงการ')}${stat('งบอนุมัติรวม',fm(tot)+' บ.')}${stat('ใช้ไปแล้ว',fm(sp)+' บ.',tot?f1(sp/tot*100)+'% ของงบอนุมัติ':'','--ok')}</div>
    <div class="dx-two">
-    <div><div class="dx-lab">ประเภทโครงการ (ข้อ 10)</div>${gt.slice(0,6).map(([k,o])=>`<div class="hb"><span title="${esc(k)}">${esc(k)} <small class="sub">(${o.n})</small></span><div class="meter"><i class="ok" style="width:${gt[0][1].b?o.b/gt[0][1].b*100:0}%"></i></div><small style="flex:0 0 auto;min-width:74px;text-align:right">${fm(o.b)} <span class="sub">${f1(tot?o.b/tot*100:0)}%</span></small></div>`).join('')}</div>
+    <div><div class="dx-lab">ประเภทโครงการ (ข้อ 10)</div>${gt.slice(0,6).map(([k,o])=>`<div class="hb"><span title="${esc(k)}${d10(k)?' · '+esc(d10(k)):''}">${esc(k)} <small class="sub">(${o.n})</small></span><div class="meter"><i class="ok" style="width:${gt[0][1].b?o.b/gt[0][1].b*100:0}%"></i></div><small style="flex:0 0 auto;min-width:74px;text-align:right">${fm(o.b)} <span class="sub">${f1(tot?o.b/tot*100:0)}%</span></small></div>`).join('')}</div>
     <div><div class="dx-lab">ประเด็นสุขภาพ (ตามงบอนุมัติ)</div>${ig.slice(0,6).map(([k,o])=>`<div class="hb"><span title="${esc(k)}">${esc(k)}</span><div class="meter"><i style="width:${o.a/imx*100}%;background:var(--pri)"></i></div><small style="flex:0 0 auto;min-width:74px;text-align:right">${fm(o.a)}</small></div>`).join('')}${ig.length>6?`<div class="sub">และอีก ${ig.length-6} ประเด็น</div>`:''}</div>
    </div>
    <details class="dx-det"><summary>ดูรายการโครงการทั้งหมด (${ps.length})</summary>
