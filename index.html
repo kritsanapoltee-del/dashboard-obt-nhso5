@@ -276,12 +276,12 @@ function cards(){
    ${meter(b.r,T70,lb)}<div class="ocap">เป้าหมาย ${T70}% ของกองทุน (เส้นขีด)</div>
    <div class="ostats">${kp('กองทุนที่ผ่าน',b.t?fm(b.p)+' / '+fm(b.t):'—','แห่ง')}${kp('เทียบปีงบฯ 69',arrow(d69),'ปี 69 = '+(a.r==null?'—':a.r.toFixed(2)+'%')+' ('+fm(a.p)+'/'+fm(a.t)+')')}${allm?'':kp('เทียบ'+(S.v=='month'?'เดือน':'ไตรมาส')+'ก่อน',arrow(dv))}</div>
    ${b.r==null?'<div class="ocap">ยังไม่มีข้อมูลรายจ่ายของ'+(S.v=='month'?'เดือน':'ไตรมาส')+'นี้</div>':''}</div>
-  <div class="card ov3" style="border-top:5px solid var(--pri)">${kh('💰','การใช้เงินกองทุน ปีงบฯ 70',sub)}
+  <div class="card ov3" style="border-top:5px solid var(--pri)">${kh('💰','การใช้เงินกองทุน ปีงบฯ 70 ทั้งหมด',sub)}<div class="ocap" style="margin:-4px 0 6px">📄 อ้างอิงจากสเตทเมนต์บัญชี ธ.ก.ส. ของกองทุน</div>
    <div class="obig">${fm(usp)}<small> บาท</small></div>
    ${bar(mp)}<div class="ocap">ใช้ไป <b>${f1(mp)}%</b> ของรายรับรวม ${fm(uin)} บาท</div>
    <div class="ostats">${kp('กองทุนที่ใช้เงินแล้ว',fm(UF.length)+' / '+fm(den),f1(up)+'% ของกองทุน')}${kp('ยังไม่ได้ใช้เงิน',fm(Math.max(0,den-UF.length)),'แห่ง')}</div>
    ${PNL.length?`<div class="ocap">⚠ ${PNL.length} แห่งข้อมูลยังไม่อัปเดต (${PNL.map(esc).join(', ')})</div>`:''}</div>
-  <div class="card ov3" data-k="alloc" style="border-top:5px solid var(--ok)">${kh('🏦','เงินจัดสรรจาก สปสช. ปีงบฯ 70',sc?'ทั้งเขต':esc(scl))}
+  <div class="card ov3" data-k="alloc" style="border-top:5px solid var(--ok)">${kh('🏦','เฉพาะการสมทบเงินฝั่ง สปสช.',sc?'ปีงบฯ 70 · ทั้งเขต':'ปีงบฯ 70 · '+esc(scl))}
    <div class="obig">${fm(rc)}<small> บาท</small></div>
    ${bar(cap?rc/cap*100:0,'var(--ok)')}<div class="ocap">โอนแล้ว <b>${f1(cap?rc/cap*100:null)}%</b> ของเพดาน ${fm(cap)} บาท</div>
    <div class="ostats">${kp('กองทุนที่ได้รับโอนแล้ว',fm(rf.length)+' / '+fm(al.length),'ของกองทุนที่ได้รับจัดสรร')}${kp('ไม่ได้รับจัดสรร',fm(FS.filter(f=>f.s70=='ไม่ได้รับจัดสรร').length),'จาก '+fm(FS.length)+' แห่ง')}</div></div>
