@@ -651,9 +651,21 @@ function buildD(texts){
   const lao={};{const K=S.lao,c=col(K,'รหัสกองทุน'),st=col(K,'สถานะการสมทบเงิน อปท.'),am=col(K,'จำนวนเงินที่สมทบ');K.rows.forEach(r=>{const code=TXT(r[c]);if(code)lao[code]=[TXT(r[st]),NUM(r[am])]})}
   const pj={};{const K=S.pj,c=col(K,'รหัสกองทุน'),n=col(K,'ชื่อโครงการ'),is=col(K,'ประเด็นปัญหาสุขภาพ'),ty=col(K,'ประเภทโครงการ'),og=col(K,'หน่วยงานที่ดำเนินการ'),tg=col(K,'กลุ่มเป้าหมาย'),pr=col(K,'งบประมาณที่เสนอ'),ap=col(K,'งบประมาณที่อนุมัติ'),sp=col(K,'งบประมาณที่ใช้ไป');
     K.rows.forEach(r=>{const code=TXT(r[c]);if(!code||!TXT(r[n]))return;(pj[code]=pj[code]||[]).push([r[n],TXT(r[is]),TXT(r[ty])||'ไม่ระบุ',TXT(r[og])||'',NUM(r[tg])||0,NUM(r[pr])||0,NUM(r[ap])||0,NUM(r[sp])||0])})}
-  const funds=[];S.ov.rows.forEach(r=>{const code=TXT(r[5]);if(!code)return;
-    const m=[];for(let k=0;k<12;k++){const b=22+6*k,t=NUM(r[b+2]),e=NUM(r[b+3]);m.push(t!=null?[t,e||0]:null)}
-    funds.push({c:code,p:TXT(r[2]),a:TXT(r[3]),n:TXT(r[4]),s69:TXT(r[6]),ltc:TXT(r[8]),s70:TXT(r[9]),pop:NUM(r[10]),cap:NUM(r[11]),x:f69[code]||null,m:m.some(Boolean)?m:null,t:NUM(r[18])!=null?[NUM(r[18]),NUM(r[19])||0]:null,fp:TXT(r[12]),hp:TXT(r[13]),cy:NUM(r[16]),lao:lao[code]||[null,null],rcv:rcv[code]||0})});
+  /* ชีตภาพรวม: อ่านคอลัมน์จาก "ชื่อหัวคอลัมน์" (ไม่ยึดตำแหน่ง) จึงทนต่อการแทรก/ลบคอลัมน์ในชีต
+     กลุ่มการเงิน 6 คอลัมน์ = ยอดยกมา | รายรับ | รวมรายรับ | รายจ่าย | เงินคงเหลือ | ร้อยละรายจ่าย
+     กลุ่มที่ไม่มีชื่อเดือนในแถวบน = "รวมทั้งหมด" · กลุ่มที่มีชื่อเดือน (ตุลาคม…กันยายน) = ยอดสะสมถึงเดือนนั้น */
+  const OV=S.ov,oc=(name,fb)=>{const i=OV.H.findIndex(x=>x.startsWith(name));return i<0?fb:i};
+  const MSF=['ตุลาคม','พฤศจิกายน','ธันวาคม','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน'],MSS=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
+  const monOf=t=>{t=String(t||'').replace(/\s/g,'');if(!t)return null;let i=MSF.findIndex(m=>t.includes(m));if(i<0)i=MSS.findIndex(m=>t.includes(m.replace(/\./g,''))||t.includes(m));return i<0?null:i};
+  const C={code:oc('รหัสกองทุน',5),p:oc('จังหวัด',2),a:oc('อำเภอ',3),n:oc('กองทุน',4),s69:oc('สถานะการจัดสรร 69',6),ltc:oc('สถานะการเข้าร่วม LTC',8),s70:oc('สถานะการจัดสรร 70',9),pop:oc('จำนวนประชากร',10),cap:oc('เพดานเงินที่จัดสรร',11),fp:oc('การอนุมัติแผนการเงิน',12),hp:oc('การอนุมัติแผนสุขภาพ',13)};
+  const BL=[];OV.H.forEach((x,i)=>{if(x.startsWith('รวมรายรับ')&&String(OV.H[i+1]||'').startsWith('รายจ่าย')){const b0=i-2;let mon=null;for(let j=b0;j<b0+6;j++){const mm=monOf(OV.pre[j]);if(mm!=null){mon=mm;break}}BL.push({b0,inc:i,exp:i+1,mon})}});
+  let TOT=BL.find(o=>o.mon==null);const MB=BL.filter(o=>o!==TOT);
+  if(MB.length&&MB.every(o=>o.mon==null))MB.forEach((o,k)=>o.mon=k);/* ไม่มีชื่อเดือน → เรียงตามลำดับจาก ต.ค. */
+  if(!BL.length)throw new Error('ชีตภาพรวม: ไม่พบกลุ่มคอลัมน์ "รวมรายรับ / รายจ่าย"');
+  const funds=[];OV.rows.forEach(r=>{const code=TXT(r[C.code]);if(!code)return;
+    const m=Array(12).fill(null);MB.forEach(o=>{if(o.mon==null)return;const t=NUM(r[o.inc]),e=NUM(r[o.exp]);if(t!=null)m[o.mon]=[t,e||0]});
+    const t=TOT?NUM(r[TOT.inc]):null;
+    funds.push({c:code,p:TXT(r[C.p]),a:TXT(r[C.a]),n:TXT(r[C.n]),s69:TXT(r[C.s69]),ltc:TXT(r[C.ltc]),s70:TXT(r[C.s70]),pop:NUM(r[C.pop]),cap:NUM(r[C.cap]),x:f69[code]||null,m:m.some(Boolean)?m:null,t:t!=null?[t,NUM(r[TOT.exp])||0]:null,fp:TXT(r[C.fp]),hp:TXT(r[C.hp]),cy:TOT?NUM(r[TOT.b0]):null,lao:lao[code]||[null,null],rcv:rcv[code]||0})});
   return{funds,projects:pj,TR}}
 async function loadAll(){
   const texts=await Promise.all(SRC.map(async(u,i)=>{let r;try{r=await fetch(u+'&_='+Date.now(),{cache:'no-store'})}catch(e){throw new Error('เปิดลิงก์ที่ '+(i+1)+' ไม่ได้ (เครือข่ายหรือสิทธิ์การเข้าถึง)')}
